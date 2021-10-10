@@ -1,0 +1,11 @@
+
+The C library code here mostly comes from The Public Domain C Library (pdclib).
+
+Get it here:         https://rootdirectory.de/doku.php?id=pdclib:start
+and here's the repo: https://github.com/DevSolar/pdclib
+
+
+The original code is licensed under CC0 (Public Domain), and I'm really having a hard time
+keeping track which file has been modified and how, etc.
+
+

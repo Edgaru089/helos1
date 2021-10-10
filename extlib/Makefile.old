@@ -1,0 +1,20 @@
+
+SELF_DIR   = $(dir $@)
+
+export AR   = echo "  AR    extlib/$(if $<,$<,$(SELF_DIR)$$<)" && x86_64-w64-mingw32-ar
+export AS   = echo "  AS    extlib/$(if $<,$<,$(SELF_DIR)$$<)" && x86_64-w64-mingw32-as
+export CC   = echo "  CC    extlib/$(if $<,$<,$(SELF_DIR)$$<)" && x86_64-w64-mingw32-gcc
+export CXX  = echo "  CXX   extlib/$(if $<,$<,$(SELF_DIR)$$<)" && x86_64-w64-mingw32-g++
+export LD   = echo "  LD    extlib/$@" && x86_64-w64-mingw32-gcc
+export FASM = echo "  FASM  extlib/$(SELF_DIR)$$(patsubst %.o,%.S,$$@)" && fasm >/dev/null
+
+SUBDIRS = $(wildcard */.)
+$(SUBDIRS):
+	echo $@
+	echo $(SUBDIRS)
+	$(MAKE) -sC $@
+
+all: $(SUBDIRS)
+
+.PHONY: all $(SUBDIRS)
+

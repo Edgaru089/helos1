@@ -1,0 +1,28 @@
+
+.SILENT:
+
+
+FLAGS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SELF_DIR   = $(dir $@)
+
+export RM = rm
+export CP = cp
+
+export AR   = echo "  AR    $<" && x86_64-w64-mingw32-ar
+export AS   = echo "  AS    $^" && x86_64-w64-mingw32-as
+export CC   = echo "  CC    $^" && x86_64-w64-mingw32-gcc
+export CXX  = echo "  CXX   $^" && x86_64-w64-mingw32-g++
+export LD   = echo "  LD    $@" && x86_64-w64-mingw32-gcc
+export FASM = echo "  FASM  $^" && fasm >/dev/null
+
+export INCLUDEFLAGS = -I/usr/include/efi -I/usr/include/efi/x86_64
+
+export CPPFLAGS =
+export CFLAGS   = $(INCLUDEFLAGS) -DHELOS -O2 -Wno-attributes -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone
+export CXXFLAGS = $(INCLUDEFLAGS) -DHELOS -O2 -Wno-unused-result -std=c++17 -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone -fno-exceptions -fno-rtti
+export LDFLAGS  = -T Linker.ld -O2 -eefiMain -nostdlib -shared -fPIE -ffreestanding -Wl,--dynamicbase,--subsystem,10 -o Main.efi -s
+export LDLIBS   = ../Unifont/unifont.o -lgcc
+
+# Pattern rule for FASM assembly
+%.o: %.S
+	$(FASM) $^ $@

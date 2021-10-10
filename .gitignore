@@ -1,0 +1,19 @@
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Compiled result
+*.o
+a.out
+Main.efi
+
+# macOS trash
+.DS_Store
+# vscode trash
+.vscode
+# Dolphin trash
+.directory
