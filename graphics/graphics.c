@@ -4,6 +4,7 @@
 #include "color.h"
 #include "unifont.h"
 #include "../runtime/stdio.h"
+#include "../util/minmax.h"
 #include <efiprot.h>
 
 #include <assert.h>
@@ -157,10 +158,6 @@ void graphics_ClearBuffer(const HelosGraphics_Color *color) {
 		*buffer = data;
 		buffer++;
 	}
-}
-
-static inline size_t min(size_t x, size_t y) {
-	return x < y ? x : y;
 }
 
 void graphics_SwapBuffer() {
