@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../main.h"
-#include "../graphics.h"
+#include "../color.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -10,6 +10,9 @@ extern "C" {
 
 // XCursor file format - see man page xcursor(3)
 // https://www.x.org/releases/X11R7.7/doc/man/man3/Xcursor.3.xhtml
+
+#define XCURSOR_MAGIC      "Xcur"
+#define XCURSOR_MAGIC_SIZE 4
 
 // Header
 typedef struct {
@@ -56,7 +59,7 @@ typedef struct {
 typedef struct {
 	uint32_t headerSize; // Size of the header
 	uint32_t type;       // Type of the Chunk, matches the Entry Type in the TOC
-	uint32_t subtype;    // Type specific subtype, Copyright, License or Other
+	uint32_t subtype;    // Type specific subtype, Image size
 	uint32_t version;    // Version number of the chunk type, =1
 
 	uint32_t            width, height; // Width/Height, <=0x7fff
@@ -64,6 +67,17 @@ typedef struct {
 	uint32_t            delay;         // Delay between animation frames in milliseconds
 	HelosGraphics_Color pixels[1];     // Packed ARGB little-endian format pixels, with A at the highest byte (BGRA in byte order)
 } PACKED xcursor_ChunkHeader_Image;
+
+
+typedef struct {
+	xcursor_Header *  header;
+	uintptr_t         size; // size of the file in bytes
+	uintptr_t         n;    // number of Chunks/TOC Entries
+	xcursor_TOCEntry *toc;  // array of TOC Entries
+} xcursor_Xcursor;
+
+// cursor->header is 0 if the open failed.
+void xcursor_LoadMemory(xcursor_Xcursor *cursor, void *file, uintptr_t fileSize);
 
 
 #ifdef __cplusplus
