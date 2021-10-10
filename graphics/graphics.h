@@ -3,6 +3,8 @@
 #include "../main.h"
 #include "efiprot.h"
 
+#include "color.h"
+#include "xcursor/xcursor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,22 +14,6 @@ extern "C" {
 #define HELOS_GRAPHICS_TARGET_MODE_WIDTH  1600
 #define HELOS_GRAPHICS_TARGET_MODE_HEIGHT 900
 
-// HelosGraphics_Color is in ARGB little-endian packed format
-// (B,G,R,A in byte order)
-typedef struct {
-	uint8_t B, G, R;
-	uint8_t A;
-} PACKED HelosGraphics_Color;
-
-extern const HelosGraphics_Color
-	HelosGraphics_Color_Black,
-	HelosGraphics_Color_White,
-	HelosGraphics_Color_Red,
-	HelosGraphics_Color_Green,
-	HelosGraphics_Color_Blue,
-	HelosGraphics_Color_Cyan,
-	HelosGraphics_Color_Magenta,
-	HelosGraphics_Color_Yellow;
 
 typedef struct {
 	int Width, Height;
@@ -37,9 +23,13 @@ typedef struct {
 } HelosGraphics_Mode;
 
 
-extern void *   graphics_DeviceFramebuffer; // this is the framebuffer directly for the device via memory mapping.
-extern void *   graphics_Framebuffer;       // this is the double-buffered framebuffer (back buffer)
-extern uint64_t graphics_FramebufferSize;
+extern void *             graphics_DeviceFramebuffer; // this is the framebuffer directly for the device via memory mapping.
+extern void *             graphics_Framebuffer;       // this is the double-buffered framebuffer (back buffer)
+extern uint64_t           graphics_FramebufferSize;
+extern HelosGraphics_Mode graphics_SystemVideoMode; // system video mode
+
+extern xcursor_ChunkHeader_Image *graphics_Cursor; // mouse cursor image
+extern int                        graphics_MouseCursorX, graphics_MouseCursorY;
 
 
 // Init() must be called prior to ExitBootServices()

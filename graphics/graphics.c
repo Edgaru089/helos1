@@ -1,6 +1,7 @@
 
 
 #include "graphics.h"
+#include "color.h"
 #include "unifont.h"
 #include "../runtime/stdio.h"
 #include <efiprot.h>
@@ -26,13 +27,16 @@ static EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
 static EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info;
 static UINTN                                 sizeofInfo, nModes, nativeMode;
 static HelosGraphics_Mode                    modes[128];
+HelosGraphics_Mode                           graphics_SystemVideoMode;
 
 void *graphics_DeviceFramebuffer;
 
 void *   graphics_Framebuffer;
 uint64_t graphics_FramebufferSize;
-
 uint32_t graphics_Doublebuffer[2048 * 1024];
+
+xcursor_ChunkHeader_Image *graphics_Cursor;
+int                        graphics_MouseCursorX, graphics_MouseCursorY;
 
 
 void graphics_Init() {
@@ -99,8 +103,12 @@ void graphics_Init() {
 	}
 #undef CASE
 
-	graphics_Framebuffer = (void *)graphics_Doublebuffer;
+	graphics_SystemVideoMode = modes[nativeMode];
+	graphics_Framebuffer     = (void *)graphics_Doublebuffer;
 	graphics_CursorX = graphics_CursorY = 0;
+
+	graphics_MouseCursorX = graphics_SystemVideoMode.Width / 2;
+	graphics_MouseCursorY = graphics_SystemVideoMode.Height / 2;
 }
 
 
@@ -112,17 +120,17 @@ void graphics_SetPixel_RGB(int posX, int posY, const HelosGraphics_Color *color)
 		uint8_t A;
 	} colorRGB = {color->R, color->G, color->B, 0};
 
-	*((uint32_t *)(graphics_Framebuffer + modes[nativeMode].PixelsPerLine * 4 * posY + 4 * posX)) = (*((uint32_t *)&colorRGB));
+	*((uint32_t *)(graphics_Framebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * posY + 4 * posX)) = (*((uint32_t *)&colorRGB));
 }
 
 void graphics_SetPixel_BGR(int posX, int posY, const HelosGraphics_Color *color) {
-	*((uint32_t *)(graphics_Framebuffer + modes[nativeMode].PixelsPerLine * 4 * posY + 4 * posX)) = (*((uint32_t *)color)) & 0x00ffffffu;
+	*((uint32_t *)(graphics_Framebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * posY + 4 * posX)) = (*((uint32_t *)color)) & 0x00ffffffu;
 }
 
 
 void graphics_GetSize(int *sizeX, int *sizeY, int *bitsPerPixel) {
-	*sizeX        = modes[nativeMode].Width;
-	*sizeY        = modes[nativeMode].Height;
+	*sizeX        = graphics_SystemVideoMode.Width;
+	*sizeY        = graphics_SystemVideoMode.Height;
 	*bitsPerPixel = 24;
 }
 
@@ -134,13 +142,13 @@ void graphics_ClearBuffer(const HelosGraphics_Color *color) {
 		return;
 	}
 
-	if (modes[nativeMode].PixelFormat == PixelRedGreenBlueReserved8BitPerColor) {
+	if (graphics_SystemVideoMode.PixelFormat == PixelRedGreenBlueReserved8BitPerColor) {
 		struct {
 			uint8_t R, G, B;
 			uint8_t A;
 		} colorRGB = {color->R, color->G, color->B, 0};
 		data       = (*(uint32_t *)&colorRGB) & 0x00ffffffu;
-	} else if (modes[nativeMode].PixelFormat == PixelBlueGreenRedReserved8BitPerColor) {
+	} else if (graphics_SystemVideoMode.PixelFormat == PixelBlueGreenRedReserved8BitPerColor) {
 		data = (*(uint32_t *)color) & 0x00ffffffu;
 	}
 
@@ -151,17 +159,47 @@ void graphics_ClearBuffer(const HelosGraphics_Color *color) {
 	}
 }
 
+static inline size_t min(size_t x, size_t y) {
+	return x < y ? x : y;
+}
+
 void graphics_SwapBuffer() {
 	memcpy(graphics_DeviceFramebuffer, graphics_Framebuffer, graphics_FramebufferSize);
+
+	if (graphics_Cursor) {
+		// TODO Optimize mouse cursor overlay render
+		/*if (graphics_SystemVideoMode.PixelFormat == PixelBlueGreenRedReserved8BitPerColor) {
+			for (int i = 0; i < graphics_Cursor->height; i++) {
+				if (graphics_MouseCursorY + i >= graphics_SystemVideoMode.Height)
+					break;
+				memcpy(
+					graphics_DeviceFramebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * graphics_CursorY + 4 * graphics_CursorX,
+					&graphics_Cursor->pixels[i * graphics_Cursor->width],
+					min(graphics_Cursor->width, graphics_SystemVideoMode.Width - graphics_MouseCursorX) * 4);
+			}
+		} else {*/
+		for (int y = 0; y < graphics_Cursor->height; y++) {
+			if (graphics_MouseCursorY + y >= graphics_SystemVideoMode.Height)
+				break;
+			for (int x = 0; x < min(graphics_Cursor->width, graphics_SystemVideoMode.Width - graphics_MouseCursorX); x++) {
+				//graphics_SetPixel_RGB(x + graphics_MouseCursorX, y + graphics_MouseCursorY, &graphics_Cursor->pixels[y * graphics_Cursor->width + x]);
+				HelosGraphics_Color *pixel = &graphics_Cursor->pixels[y * graphics_Cursor->width + x];
+				if (pixel->A <= 0x7f)
+					continue;
+				*((uint32_t *)(graphics_DeviceFramebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * (y + graphics_MouseCursorY) + 4 * (x + graphics_MouseCursorX))) = (*((uint32_t *)&graphics_Cursor->pixels[y * graphics_Cursor->width + x])) & 0x00ffffffu;
+			}
+		}
+		//}
+	}
 }
 
 void graphics_FillPixel(int startX, int startY, int endX, int endY, const HelosGraphics_Color *color) {
 	// TODO Optimize this! This is too sloooow
-	if (gop->Mode->Info->PixelFormat == PixelBlueGreenRedReserved8BitPerColor)
+	if (graphics_SystemVideoMode.PixelFormat == PixelBlueGreenRedReserved8BitPerColor)
 		for (int i = startX; i < endX; i++)
 			for (int j = startY; j < endY; j++)
-				*((uint32_t *)(graphics_Framebuffer + modes[nativeMode].PixelsPerLine * 4 * j + 4 * i)) = (*((uint32_t *)color)) & 0x00ffffffu;
-	else if (gop->Mode->Info->PixelFormat == PixelRedGreenBlueReserved8BitPerColor)
+				*((uint32_t *)(graphics_Framebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * j + 4 * i)) = (*((uint32_t *)color)) & 0x00ffffffu;
+	else if (graphics_SystemVideoMode.PixelFormat == PixelRedGreenBlueReserved8BitPerColor)
 		for (int i = startX; i < endX; i++)
 			for (int j = startY; j < endY; j++) {
 				struct {
@@ -169,7 +207,7 @@ void graphics_FillPixel(int startX, int startY, int endX, int endY, const HelosG
 					uint8_t A;
 				} colorRGB = {color->B, color->G, color->R, 0};
 
-				*((uint32_t *)(graphics_Framebuffer + modes[nativeMode].PixelsPerLine * 4 * j + 4 * i)) = (*((uint32_t *)&colorRGB));
+				*((uint32_t *)(graphics_Framebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * j + 4 * i)) = (*((uint32_t *)&colorRGB));
 			}
 }
 
@@ -178,24 +216,24 @@ int graphics_CursorX, graphics_CursorY;
 void graphics_Scroll(int scrollY) {
 	memmove(
 		graphics_Doublebuffer,
-		graphics_Doublebuffer + modes[nativeMode].PixelsPerLine * scrollY,
-		sizeof(uint32_t) * (modes[nativeMode].PixelsPerLine * (modes[nativeMode].Height - scrollY)));
+		graphics_Doublebuffer + graphics_SystemVideoMode.PixelsPerLine * scrollY,
+		sizeof(uint32_t) * (graphics_SystemVideoMode.PixelsPerLine * (graphics_SystemVideoMode.Height - scrollY)));
 	// TODO proper memset instead of this sloooow FillPixel
 	/*memset(
-		graphics_Doublebuffer + modes[nativeMode].PixelsPerLine * (modes[nativeMode].Height - scrollY),
+		graphics_Doublebuffer + graphics_SystemVideoMode.PixelsPerLine * (graphics_SystemVideoMode.Height - scrollY),
 		0,
-		sizeof(uint32_t) * modes[nativeMode].PixelsPerLine * (scrollY));*/
-	graphics_FillPixel(0, modes[nativeMode].Height - scrollY, modes[nativeMode].Width, modes[nativeMode].Height, &HelosGraphics_Color_Black);
+		sizeof(uint32_t) * graphics_SystemVideoMode.PixelsPerLine * (scrollY));*/
+	graphics_FillPixel(0, graphics_SystemVideoMode.Height - scrollY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height, &HelosGraphics_Color_Black);
 }
 
 void graphics_ElementSize(int sizeX, int sizeY) {
-	if (graphics_CursorX + sizeX >= modes[nativeMode].Width) { // line breaking required
+	if (graphics_CursorX + sizeX >= graphics_SystemVideoMode.Width) { // line breaking required
 		graphics_CursorY += sizeY;
 		graphics_CursorX = 0;
 	}
-	if (graphics_CursorY + sizeY >= modes[nativeMode].Height) { // scrolling required
-		graphics_Scroll(sizeY + graphics_CursorY - modes[nativeMode].Height);
-		graphics_CursorY = modes[nativeMode].Height - sizeY;
+	if (graphics_CursorY + sizeY >= graphics_SystemVideoMode.Height) { // scrolling required
+		graphics_Scroll(sizeY + graphics_CursorY - graphics_SystemVideoMode.Height);
+		graphics_CursorY = graphics_SystemVideoMode.Height - sizeY;
 	}
 }
 
