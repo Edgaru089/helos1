@@ -83,14 +83,16 @@ void caseSectionFlags(uint32_t flags) {
 int main(int argc, char *argv[]) {
 	execformat_pe_OptionalHeader_CheckPacking();
 
-	int f = open("../../Main.efi", O_RDONLY);
+	int f;
+	if (argc > 1)
+		f = open(argv[1], O_RDONLY);
+	else
+		f = open("../../Main.efi", O_RDONLY);
 	assert(f != -1 && "File open failed");
 
 	struct stat st;
 	fstat(f, &st);
-	void *maddr = mmap(0, st.st_size, PROT_READ, MAP_SHARED, f, 0);
-	void *addr  = malloc(st.st_size);
-	memcpy(addr, maddr, st.st_size);
+	void *addr  = mmap(0, st.st_size, PROT_READ, MAP_SHARED, f, 0);
 
 	execformat_pe_PortableExecutable pe;
 	execformat_pe_LoadMemory(&pe, addr, st.st_size);
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	execformat_pe_BaseRelocate(&pe, 0, 0xFFFFFFFFC0000000ull);
+	//execformat_pe_BaseRelocate(&pe, 0, 0xFFFFFFFFC0000000ull);
 
 	return 0;
 }
