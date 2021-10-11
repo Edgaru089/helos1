@@ -2,7 +2,7 @@
 #include "../main.h"
 #include "memory.h"
 #include "../runtime/stdio.h"
-#include "../extlib/liballoc/liballoc_1_1.h"
+#include "../extlib/dlmalloc/malloc-2.8.6.h"
 
 #include <string.h>
 
@@ -23,14 +23,14 @@ void efiFree(void *data) {
 }
 
 void *kMalloc(size_t size) {
-	void *mem = liballoc_kmalloc(size);
+	void *mem = dlmalloc(size);
 	io_Printf("kMalloc: size=%llu, pos=0x%llx\n", size, mem);
 	return mem;
 }
 
 void kFree(void *data) {
 	io_Printf("kFree: 0x%llx\n", data);
-	liballoc_kfree(data);
+	dlfree(data);
 }
 
 void *kMemoryMap(void *desiredVirtual, int pageCount, int protectionFlags, int flags, int fd) {
