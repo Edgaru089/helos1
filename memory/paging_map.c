@@ -3,6 +3,7 @@
 #include "paging_internal.h"
 #include "../runtime/panic_assert.h"
 #include "string.h"
+#include "../util/minmax.h"
 
 
 // some learning:
@@ -113,35 +114,39 @@ void paging_map_Page1G(uint64_t physical, uint64_t virtual, int pageCount, int p
 void paging_map_PageAllocated(uint64_t virtual, int pageCount, int protectionFlags) {
 	assert(virtual % SYSTEM_PAGE_SIZE == 0 && "Virtual address not page-aligned");
 
-	// skip the first 1M
-	int i = 1024 / 4 / BITMAP_BITS;
-	while (pageCount--) {
-		uint64_t freshPage = 0;
+	uint64_t *buf     = (uint64_t *)Buffer;
+	int       bufSize = HELOS_BUFFER_SIZE / sizeof(uint64_t *);
 
-		// this code is in sync with paging_physical.c, paging_physical_AllocateOneFrame, so you have to modify both
-		for (; i < paging_EndPhysicalPage / BITMAP_BITS; i++)
-			if (paging_physical_Bitmap[i] != ~0ull)
-				for (int j = 0; j < BITMAP_BITS; j++)
-					if ((paging_physical_Bitmap[i] & (1ull << j)) == 0) {
-						paging_physical_Bitmap[i] |= (1ull << j);
-						freshPage = (((uint64_t)i) * BITMAP_BITS + j) * SYSTEM_PAGE_SIZE;
-						memset((void *)freshPage, 0, SYSTEM_PAGE_SIZE);
-					}
+	while (pageCount > 0) {
+		int pageCur   = intmin(pageCount, bufSize);
+		int allocated = paging_physical_AllocateFrames(pageCur, buf);
+		for (int i = 0; i < allocated; i++) {
+			io_Printf("paging_map_PageAllocated: mapping physical %llx to virtual %llx\n", buf[i], virtual);
+			paging_map_Page(buf[i], virtual, 1, protectionFlags);
+		}
 
-		paging_map_Page(freshPage, virtual, 1, protectionFlags);
-		virtual += SYSTEM_PAGE_SIZE;
+		virtual += SYSTEM_PAGE_SIZE * allocated;
+		pageCount -= allocated;
 	}
 }
 
 void paging_map_PageAllocated2M(uint64_t virtual, int pageCount, int protectionFlags) {
-	assert(pageCount > HELOS_BUFFER_SIZE / SYSTEM_PAGE_2M_SIZE * 8 && "helos_Buffer unable to hold all pointers");
 	assert(virtual % SYSTEM_PAGE_2M_SIZE == 0 && "Virtual address not page-aligned");
 
-	uint64_t *buf = (uint64_t *)Buffer;
+	uint64_t *buf     = (uint64_t *)Buffer;
+	int       bufSize = HELOS_BUFFER_SIZE / sizeof(uint64_t *);
 
-	int allocated = paging_physical_AllocateFrames2M(pageCount, buf);
-	for (int i = 0; i < allocated; i++)
-		paging_map_Page2M(buf[i], virtual + SYSTEM_PAGE_2M_SIZE * i, 1, protectionFlags);
+	while (pageCount > 0) {
+		int pageCur   = intmin(pageCount, bufSize);
+		int allocated = paging_physical_AllocateFrames2M(pageCur, buf);
+		for (int i = 0; i < allocated; i++) {
+			io_Printf("paging_map_PageAllocated: mapping physical %llx to virtual %llx\n", buf[i], virtual);
+			paging_map_Page2M(buf[i], virtual, 1, protectionFlags);
+		}
+
+		virtual += SYSTEM_PAGE_2M_SIZE * allocated;
+		pageCount -= allocated;
+	}
 }
 
 void paging_map_FreeAllocated(uint64_t virtual, uint64_t end) {
