@@ -22,8 +22,8 @@ void _putchar(char c) {
 	}
 }
 
-int     __io_WriteConsole_bufSize = 256;
-UINT16  __io_WriteConsole_bufferReal[256];
+int     __io_WriteConsole_bufSize = 512;
+UINT16  __io_WriteConsole_bufferReal[512];
 UINT16 *__io_WriteConsole_buffer = __io_WriteConsole_bufferReal;
 
 void __io_WriteConsole_ResizeBuffer(int size) {
