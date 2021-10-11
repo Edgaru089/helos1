@@ -54,9 +54,9 @@ void     paging_physical_FreeFrame(uint64_t frame, int pageCount);           // 
 void paging_map_Page(uint64_t physical, uint64_t virt, int pageCount, int protectionFlags);
 void paging_map_Page2M(uint64_t physical, uint64_t virt, int pageCount, int protectionFlags);
 void paging_map_Page1G(uint64_t physical, uint64_t virt, int pageCount, int protectionFlags);
-// Allocates pageCount fresh new 4K pages with paging_physical and maps them continuously to virtual
+// Allocates pageCount fresh new 4K pages with paging_physical and maps them continuously to virtual (zeroed)
 void paging_map_PageAllocated(uint64_t virt, int pageCount, int protectionFlags);
-// Allocates pageCount fresh new 2M pages with paging_physical and maps them continuously to virtual
+// Allocates pageCount fresh new 2M pages with paging_physical and maps them continuously to virtual (zeroed)
 void paging_map_PageAllocated2M(uint64_t virt, int pageCount, int protectionFlags);
 // Unmaps the pages at virtual and free the underlying physical frames, with past-the-end of the memory addr
 void paging_map_FreeAllocated(uint64_t virt, uint64_t virt_end);
