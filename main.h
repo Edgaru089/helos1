@@ -38,7 +38,7 @@ extern SIMPLE_TEXT_OUTPUT_INTERFACE *efiStdout, *efiStderr;
 extern SIMPLE_INPUT_INTERFACE *      efiStdin;
 
 #define HELOS_BUFFER_SIZE 16384
-extern char Buffer[HELOS_BUFFER_SIZE]; // general-purpose buffer, user saved (volatile), not used in interrupt handlers
+extern char Buffer[HELOS_BUFFER_SIZE] ALIGN(4096); // general-purpose buffer, user saved (volatile), not used in interrupt handlers
 
 
 extern const char link_TextStart[], link_TextEnd[];
