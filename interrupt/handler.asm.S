@@ -48,55 +48,53 @@ section '.text' executable
 
 
 macro inth op1 {
+	push r15
+	lea  r15, [rsp+8]
+	push r14
+	push r13
+	push r12
+	push r11
+	push r10
+	push r9
+	push r8
+	push r15  ; original rsp in r15
+	push rbp
 	push rdi
-	mov rdi, op1
 	push rsi
 	push rdx
-	mov rdx, [rsp+24]
-	push rcx
-	push r8
-	push r9
-	push r10
-	push r11
-	push rax
+	mov  r9, rcx
+	mov  r8, rbx
+	mov  rcx, rax
+	mov  rdx, [rsp+104]  ; 13*8 (13 pushes of 8 bytes)
+	xor  rsi, rsi
+	mov  rdi, op1
 	call interrupt_Handler
-	pop rax
-	pop r11
-	pop r10
-	pop r9
-	pop r8
-	pop rcx
-	pop rdx
-	pop rsi
-	pop rdi
-	iretq
+	; interrupt_Handler panics
 }
 
 macro inth_err op1 {
-	push rsi
-	push rdi
-	mov rdi, op1
-	mov esi, [rsp+16]
-	push rdx
-	mov rdx, [rsp+32]
-	push rcx
-	push r8
-	push r9
-	push r10
+	push r15
+	lea  r15, [rsp+8]
+	push r14
+	push r13
+	push r12
 	push r11
-	push rax
+	push r10
+	push r9
+	push r8
+	push r15  ; original rsp in r15
+	push rbp
+	push rdi
+	push rsi
+	push rdx
+	mov  r9, rcx
+	mov  r8, rbx
+	mov  rcx, rax
+	mov  rdx, [rsp+8+104]  ; 13*8 (13 pushes of 8 bytes)
+	mov  esi, [rsp+104]
+	mov  rdi, op1
 	call interrupt_Handler
-	pop rax
-	pop r11
-	pop r10
-	pop r9
-	pop r8
-	pop rcx
-	pop rdx
-	pop rdi
-	pop rsi
-	add rsp, 8 ; pop the error code
-	iretq
+	; interrupt_Handler panics
 }
 
 interrupt_Int0: ; does not return

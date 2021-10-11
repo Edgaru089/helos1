@@ -48,7 +48,7 @@ SYSV_ABI void interrupt_MapHandler(void *handler, int interrupt);
 // errorcode is 0 if nonexistent
 //
 // for IRQs, params are documented in assembly
-SYSV_ABI void interrupt_Handler(int vec, int errcode, uint64_t rip, int c, int d, int e);
+SYSV_ABI void interrupt_Handler(int vec, int errcode, uint64_t rip, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi, uint64_t rbp, uint64_t rsp, uint64_t r8, uint64_t r9, uint64_t r10, uint64_t r11, uint64_t r12, uint64_t r13, uint64_t r14, uint64_t r15);
 
 // defined in assembly
 SYSV_ABI void interrupt_LoadGDT(void *gdtr);
