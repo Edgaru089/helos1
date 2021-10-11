@@ -1,0 +1,28 @@
+1,2d0
+< #include "dlmalloc_config.h"
+< 
+535,544c533,541
+< //#ifndef WIN32
+< //#ifdef _WIN32
+< //#define WIN32 1
+< //#endif  /* _WIN32 */
+< //#ifdef _WIN32_WCE
+< //#define LACKS_FCNTL_H
+< //#define WIN32 1
+< //#endif /* _WIN32_WCE */
+< //#endif  /* WIN32 */
+< 
+---
+> #ifndef WIN32
+> #ifdef _WIN32
+> #define WIN32 1
+> #endif  /* _WIN32 */
+> #ifdef _WIN32_WCE
+> #define LACKS_FCNTL_H
+> #define WIN32 1
+> #endif /* _WIN32_WCE */
+> #endif  /* WIN32 */
+1449d1445
+< #ifndef assert
+1451d1446
+< #endif
