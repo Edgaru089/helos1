@@ -26,6 +26,13 @@ extern "C" {
 #define IRQ_PIC_PS2_STATUS_TIMEOUT_ERROR           (1 << 6)
 #define IRQ_PIC_PS2_STATUS_PARITY_ERROR            (1 << 7)
 
+#define IRQ_PIC_PS2_CONFIG_PORT1_INTERRUPT   (1 << 0) // PS/2 port interrupt (1=Enabled, 0=Disabled)
+#define IRQ_PIC_PS2_CONFIG_PORT2_INTERRUPT   (1 << 1) // PS/2 port interrupt (1=Enabled, 0=Disabled)
+#define IRQ_PIC_PS2_CONFIG_SYSTEM_POST_OK    (1 << 2) // If the system have passed POST
+#define IRQ_PIC_PS2_CONFIG_PORT1_CLOCK       (1 << 4) // PS/2 port clock (1=Disabled, 0=Enabled)
+#define IRQ_PIC_PS2_CONFIG_PORT2_CLOCK       (1 << 5) // PS/2 port clock (1=Disabled, 0=Enabled)
+#define IRQ_PIC_PS2_CONFIG_PORT1_TRANSLATION (1 << 6) // PS/2 keyboard scancode translation (from Set 2 to Set 1)
+
 #define IRQ_PIC_PS2_ACK      0xfa // ACK code for keyboard and mouse (controller cmds have no ack)
 #define IRQ_PIC_PS2_RESET_OK 0xaa // the last output byte when a PS/2 device is reset
 
@@ -42,6 +49,7 @@ extern "C" {
 
 void irq_pic_ps2_Init();
 
+extern bool irq_pic_ps2_HasMouse;    // does the PS/2 controller have 2 channels?
 extern bool irq_pic_ps2_Mouse4Bytes; // the mouse has 4-byte data packages instead of 3; mouse wheel enabled
 
 
