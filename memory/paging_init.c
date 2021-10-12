@@ -70,9 +70,9 @@ void runtime_InitPaging() {
 		 (char *)entry < (char *)efiMemoryMap + efiMemoryMapSize;
 		 entry = NEXT_MEMORY_DESCRITOR(entry, efiDescriptorSize) {
 		io_Printf(
-			"    [%08x-%08x] -> [%08x] %s (%d)\n",
+			"    [%08llx-%08llx] -> [%08llx] %s (%d)\n",
 			entry->PhysicalStart,
-			entry->PhysicalStart + entry->NumberOfPages * SYSTEM_PAGE_SIZE,
+			entry->PhysicalStart + SYSTEM_PAGE_SIZE * entry->NumberOfPages,
 			entry->VirtualStart,
 			memoryTypeName(entry->Type),
 			entry->Type);
