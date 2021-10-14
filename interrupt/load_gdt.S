@@ -11,7 +11,7 @@ section '.text' executable
 ;
 ; Clobbers: rax
 interrupt_ReloadSegments:
-	mov eax, 0x10  ; my data segment
+	;mov eax, 0x10  ; my data segment
 	xor ax, ax
 	mov ds, ax
 	mov es, ax
