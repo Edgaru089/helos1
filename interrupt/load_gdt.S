@@ -1,19 +1,9 @@
 format elf64
 
 public interrupt_ReloadSegments
-public interrupt_LoadGDT
-public interrupt_LoadIDT
 
 
 section '.text' executable
-
-; sysvx64call void interrupt_LoadGDT(void* gdtr)
-;
-; Input:    (void* rdi)
-; Clobbers: none
-interrupt_LoadGDT:
-	lgdt [rdi]
-	ret
 
 ; sysvx64call void interrupt_ReloadSegments()
 ;
@@ -34,12 +24,4 @@ interrupt_ReloadSegments:
 	push qword 0x08  ; my code segment
 	push rax
 	retfq
-
-; sysvx64call void interrupt_LoadIDT(void* idtr)
-;
-; Input:    (void* rdi)
-; Clobbers: none
-interrupt_LoadIDT:
-	lidt [rdi]
-	ret
 
