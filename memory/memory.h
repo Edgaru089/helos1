@@ -21,12 +21,9 @@ extern "C" {
 #define KERNEL_GDT_MAPPING (KERNEL_MISC_MAPPING + KERNEL_IDT_SIZE)
 #define KERNEL_GDT_SIZE    (16ull * 8)
 
-#define KERNEL_IDTR_MAPPING (KERNEL_MISC_MAPPING + KERNEL_IDT_SIZE + KERNEL_GDT_SIZE)
-#define KERNEL_GDTR_MAPPING (KERNEL_MISC_MAPPING + KERNEL_IDT_SIZE + KERNEL_GDT_SIZE + 12)
+#define KERNEL_MISC_NEXT (KERNEL_MISC_MAPPING + KERNEL_IDT_SIZE + KERNEL_GDT_SIZE)
 
-#define KERNEL_MISC_NEXT (KERNEL_MISC_MAPPING + KERNEL_IDT_SIZE + KERNEL_GDT_SIZE + 24)
-
-#define KERNEL_MISC_SIZE (KERNEL_IDT_SIZE + KERNEL_GDT_SIZE + 24) // add all the misc sizes
+#define KERNEL_MISC_SIZE (KERNEL_IDT_SIZE + KERNEL_GDT_SIZE) // add all the misc sizes
 
 
 extern uint64_t        paging_LoaderCodeAddress, paging_LoaderCodeSize; // physical address for loader code section

@@ -53,14 +53,8 @@ SYSV_ABI void interrupt_Handler(int vec, int errcode, uint64_t rip, uint64_t rax
 // defined in assembly
 SYSV_ABI void interrupt_ReloadSegments();
 
-inline void interrupt_LoadGDT(interrupt_DescriptorTableReference *gdtr) {
-	asm volatile("lgdt %0"
-				 : "=m"(*gdtr));
-}
-inline void interrupt_LoadIDT(interrupt_DescriptorTableReference *idtr) {
-	asm volatile("lidt %0"
-				 : "=m"(*idtr));
-}
+SYSV_ABI void interrupt_LoadGDT(uint16_t length_sub1, void *base_ptr);
+SYSV_ABI void interrupt_LoadIDT(uint16_t length_sub1, void *base_ptr);
 
 
 #define INTERRUPT_DISABLE                  \

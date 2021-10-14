@@ -1,6 +1,8 @@
 format elf64
 
 public interrupt_ReloadSegments
+public interrupt_LoadGDT
+public interrupt_LoadIDT
 
 
 section '.text' executable
@@ -25,3 +27,30 @@ interrupt_ReloadSegments:
 	push rax
 	retfq
 
+; sysvx64call void interrupt_LoadGDT(uint16_t length_sub1, void* base_ptr)
+;
+; Input:  (uint16_t di, void* rsi)
+; Clobbers: rax, flags
+interrupt_LoadGDT:
+	mov  rax, rsp  ; save old RSP
+	sub  rsp, 10
+	and  rsp, 0xfffffffffffffffc  ; align RSP to 4-byte
+	mov  [rsp], di
+	mov  [rsp+2], rsi
+	lgdt [rsp]
+	mov  rsp, rax  ; restore old RSP
+	ret
+
+; sysvx64call void interrupt_LoadIDT(uint16_t length_sub1, void* base_ptr)
+;
+; Input:  (uint16_t di, void* rsi)
+; Clobbers: rax, flags
+interrupt_LoadIDT:
+	mov  rax, rsp  ; save old RSP
+	sub  rsp, 10
+	and  rsp, 0xfffffffffffffffc  ; align RSP to 4-byte
+	mov  [rsp], di
+	mov  [rsp+2], rsi
+	lidt [rsp]
+	mov  rsp, rax  ; restore old RSP
+	ret
