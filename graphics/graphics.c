@@ -2,6 +2,7 @@
 
 #include "graphics.h"
 #include "color.h"
+#include "internal_helpers.h"
 #include "unifont.h"
 #include "../runtime/stdio.h"
 #include "../util/minmax.h"
@@ -36,8 +37,11 @@ void *   graphics_Framebuffer;
 uint64_t graphics_FramebufferSize;
 uint32_t graphics_Doublebuffer[2048 * 1024];
 
+#define MOUSE_OVERLAY_SIZE 32
 xcursor_ChunkHeader_Image *graphics_Cursor;
 int                        graphics_MouseCursorX, graphics_MouseCursorY;
+static int                 __lastMouseX, __lastMouseY; // Last of mouse **IMAGE** position
+static uint32_t            __mouseOverlay[MOUSE_OVERLAY_SIZE * MOUSE_OVERLAY_SIZE];
 
 
 void graphics_Init() {
@@ -160,34 +164,33 @@ void graphics_ClearBuffer(const HelosGraphics_Color *color) {
 	}
 }
 
-void graphics_SwapBuffer() {
-	memcpy(graphics_DeviceFramebuffer, graphics_Framebuffer, graphics_FramebufferSize);
+static void __graphics__UpdateMouse() {
+	if (!graphics_Cursor)
+		return;
 
-	if (graphics_Cursor) {
-		// TODO Optimize mouse cursor overlay render
-		/*if (graphics_SystemVideoMode.PixelFormat == PixelBlueGreenRedReserved8BitPerColor) {
-			for (int i = 0; i < graphics_Cursor->height; i++) {
-				if (graphics_MouseCursorY + i >= graphics_SystemVideoMode.Height)
-					break;
-				memcpy(
-					graphics_DeviceFramebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * graphics_CursorY + 4 * graphics_CursorX,
-					&graphics_Cursor->pixels[i * graphics_Cursor->width],
-					min(graphics_Cursor->width, graphics_SystemVideoMode.Width - graphics_MouseCursorX) * 4);
-			}
-		} else {*/
-		int imgX = graphics_MouseCursorX - graphics_Cursor->xhot + 1;
-		int imgY = graphics_MouseCursorY - graphics_Cursor->yhot + 1;
-		for (int y = intmax(imgY, 0); y < intmin(imgY + graphics_Cursor->height, graphics_SystemVideoMode.Height); y++) {
-			for (int x = intmax(imgX, 0); x < intmin(imgX + graphics_Cursor->width, graphics_SystemVideoMode.Width); x++) {
-				//graphics_SetPixel_RGB(x + graphics_MouseCursorX, y + graphics_MouseCursorY, &graphics_Cursor->pixels[y * graphics_Cursor->width + x]);
-				HelosGraphics_Color *pixel = &graphics_Cursor->pixels[(y - imgY) * graphics_Cursor->width + (x - imgX)];
-				if (pixel->A <= 0x7f)
-					continue;
-				*((uint32_t *)(graphics_DeviceFramebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * y + 4 * x)) = (*((uint32_t *)pixel)) & 0x00ffffffu;
-			}
-		}
-		//}
+	int imgX = graphics_MouseCursorX - graphics_Cursor->xhot + 1;
+	int imgY = graphics_MouseCursorY - graphics_Cursor->yhot + 1;
+	if (imgX != __lastMouseX || imgY != __lastMouseY) { // moved
+		__graphics_CopyBuffer32(
+			__mouseOverlay, 0, 0, MOUSE_OVERLAY_SIZE, MOUSE_OVERLAY_SIZE,
+			graphics_Framebuffer, __lastMouseX, __lastMouseY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
+			graphics_Cursor->width, graphics_Cursor->height);
+		__graphics_CopyBuffer32(
+			graphics_Framebuffer, imgX, imgY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
+			__mouseOverlay, 0, 0, MOUSE_OVERLAY_SIZE, MOUSE_OVERLAY_SIZE,
+			graphics_Cursor->width, graphics_Cursor->height);
+		__graphics_RenderBuffer32(
+			graphics_Cursor->pixels, 0, 0, graphics_Cursor->width, graphics_Cursor->height,
+			graphics_Framebuffer, imgX, imgY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
+			graphics_Cursor->width, graphics_Cursor->height);
+		__lastMouseX = imgX;
+		__lastMouseY = imgY;
 	}
+}
+
+void graphics_SwapBuffer() {
+	__graphics__UpdateMouse();
+	memcpy(graphics_DeviceFramebuffer, graphics_Framebuffer, graphics_FramebufferSize);
 }
 
 void graphics_FillPixel(int startX, int startY, int endX, int endY, const HelosGraphics_Color *color) {
@@ -221,6 +224,7 @@ void graphics_Scroll(int scrollY) {
 		0,
 		sizeof(uint32_t) * graphics_SystemVideoMode.PixelsPerLine * (scrollY));*/
 	graphics_FillPixel(0, graphics_SystemVideoMode.Height - scrollY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height, &HelosGraphics_Color_Black);
+	__lastMouseY -= scrollY;
 }
 
 void graphics_ElementSize(int sizeX, int sizeY) {
