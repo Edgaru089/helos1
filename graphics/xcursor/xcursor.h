@@ -65,7 +65,7 @@ typedef struct {
 	uint32_t            width, height; // Width/Height, <=0x7fff
 	uint32_t            xhot, yhot;    // X/Y hotpoint, <=Width/Height
 	uint32_t            delay;         // Delay between animation frames in milliseconds
-	HelosGraphics_Color pixels[1];     // Packed ARGB little-endian format pixels, with A at the highest byte (BGRA in byte order)
+	HelosGraphics_Color pixels[1];     // Packed ARGB little-endian format pixels, with A at the highest byte (BGRA in byte order), with premultiplied alpha
 } PACKED xcursor_ChunkHeader_Image;
 
 
