@@ -1,3 +1,13 @@
 CompileFlags:
 	Add: [-I/usr/include/efi, -I/usr/include/efi/x86_64, -DHELOS]
+---
+If:
+	PathMatch: [.*\.h, .*\.c]
+CompileFlags:
+	Add: [-xc, -std=c99]
+---
+If:
+	PathMatch: [.*\.hpp, .*\.cpp]
+CompileFlags:
+	Add: [-xc++, -std=c++17]
 
