@@ -25,6 +25,17 @@ extern "C" {
 
 #define KERNEL_MISC_SIZE (KERNEL_IDT_SIZE + KERNEL_GDT_SIZE) // add all the misc sizes
 
+#define KERNEL_MAPPING_BOTTOM (KERNEL_MISC_MAPPING) // bottom of the static kernel mapping range
+extern uint64_t memory_KernelMappingBottom;
+
+// Allocates a new region for memory mapping in the kernel memory range
+// align must be a exponent of 2
+static inline uint64_t memory_AllocateKernelMapping(uint64_t size, uint64_t align) {
+	memory_KernelMappingBottom -= size;
+	memory_KernelMappingBottom &= ~(align - 1);
+	return memory_KernelMappingBottom;
+}
+
 
 extern uint64_t        paging_LoaderCodeAddress, paging_LoaderCodeSize; // physical address for loader code section
 static inline uint64_t paging_MapFunction(void *func) {

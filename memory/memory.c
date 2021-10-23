@@ -7,6 +7,8 @@
 #include <string.h>
 
 
+uint64_t memory_KernelMappingBottom = KERNEL_MISC_MAPPING;
+
 void *efiMallocTyped(size_t size, EFI_MEMORY_TYPE type) {
 	void *data;
 	efiBootServices->AllocatePool(type, size, &data);
