@@ -24,6 +24,13 @@ void queue_PushByte(queue *q, const uint8_t b);
 // pops one byte from the front of the queue, returning it
 uint8_t queue_PopByte(queue *q);
 
+// write Size bytes to the queue, none written if there is not space for all the bytes
+void queue_Push(queue *q, const void *buffer, uintptr_t size);
+
+// pops Size bytes from the queue, none popped if there are no enough data
+// returns the number of bytes popped (either Size or 0)
+uintptr_t queue_Pop(queue *q, void *buffer, uintptr_t size);
+
 // return the byte at the front of the queue
 uint8_t queue_FrontByte(queue *q);
 

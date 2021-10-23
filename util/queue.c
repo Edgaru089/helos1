@@ -34,6 +34,22 @@ uint8_t queue_PopByte(queue *q) {
 	return data;
 }
 
+void queue_Push(queue *q, const void *buffer, uintptr_t size) {
+	// TODO Optimize queue_Push and queue_Pop
+	if (queue_Space(q) < size)
+		return;
+	for (const uint8_t *i = buffer; i < (const uint8_t *)buffer + size; i++)
+		queue_PushByte(q, *i);
+}
+
+uintptr_t queue_Pop(queue *q, void *buffer, uintptr_t size) {
+	if (queue_Size(q) < size)
+		return 0;
+	for (uint8_t *i = buffer; i < (uint8_t *)buffer + size; i++)
+		*i = queue_PopByte(q);
+	return size;
+}
+
 uint8_t queue_FrontByte(queue *q) {
 	if (q->count == 0) {
 		io_WriteConsoleASCII("queue_TopByte: accessing an empty queue\n");
