@@ -71,8 +71,7 @@ void irq_pic_ps2_Init() {
 	__ps2_ReadACK();
 	uint8_t id = __ps2_ReadData(); // receive device ID
 	io_Printf(", MOUSE PS/2 ID=%d\n", id);
-	if (id == 3) // Z-axis is enabled
-		irq_pic_ps2_Mouse4Bytes = true;
+	irq_pic_ps2_Mouse4Bytes = (id == 3); // Z-axis is enabled
 
 	irq_pic_IRQHandler[IRQ_PIC_PS2_MOUSE] = irq_pic_ps2_IRQHandlerM;
 	irq_pic_Mask(IRQ_PIC_PS2_MOUSE, false);
