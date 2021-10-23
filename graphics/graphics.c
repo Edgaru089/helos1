@@ -41,6 +41,7 @@ uint32_t graphics_Doublebuffer[2048 * 1024];
 xcursor_ChunkHeader_Image *graphics_Cursor;
 int                        graphics_MouseCursorX, graphics_MouseCursorY;
 static int                 __lastMouseX, __lastMouseY; // Last of mouse **IMAGE** position
+static int                 __lastMouseSizeX, __lastMouseSizeY;
 static uint32_t            __mouseOverlay[MOUSE_OVERLAY_SIZE * MOUSE_OVERLAY_SIZE];
 
 
@@ -170,11 +171,11 @@ static void __graphics__UpdateMouse() {
 
 	int imgX = graphics_MouseCursorX - graphics_Cursor->xhot + 1;
 	int imgY = graphics_MouseCursorY - graphics_Cursor->yhot + 1;
-	if (imgX != __lastMouseX || imgY != __lastMouseY) { // moved
+	if (imgX != __lastMouseX || imgY != __lastMouseY || graphics_Cursor->width != __lastMouseSizeX || graphics_Cursor->height != __lastMouseSizeY) { // moved
 		__graphics_CopyBuffer32(
 			__mouseOverlay, 0, 0, MOUSE_OVERLAY_SIZE, MOUSE_OVERLAY_SIZE,
 			graphics_Framebuffer, __lastMouseX, __lastMouseY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
-			graphics_Cursor->width, graphics_Cursor->height);
+			__lastMouseSizeX, __lastMouseSizeY);
 		__graphics_CopyBuffer32(
 			graphics_Framebuffer, imgX, imgY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
 			__mouseOverlay, 0, 0, MOUSE_OVERLAY_SIZE, MOUSE_OVERLAY_SIZE,
@@ -183,8 +184,10 @@ static void __graphics__UpdateMouse() {
 			graphics_Cursor->pixels, 0, 0, graphics_Cursor->width, graphics_Cursor->height,
 			graphics_Framebuffer, imgX, imgY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
 			graphics_Cursor->width, graphics_Cursor->height);
-		__lastMouseX = imgX;
-		__lastMouseY = imgY;
+		__lastMouseX     = imgX;
+		__lastMouseY     = imgY;
+		__lastMouseSizeX = graphics_Cursor->width;
+		__lastMouseSizeY = graphics_Cursor->height;
 	}
 }
 
