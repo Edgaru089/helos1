@@ -57,4 +57,22 @@ bool operator!=(const kAllocator<T> &, const kAllocator<U> &) {
 // operators new and delete only call kMalloc/kFree, so C++ code
 // must stay after paging setup
 void *operator new(std::size_t size);
-void  operator delete(void *ptr) noexcept;
+void *operator new[](std::size_t size);
+
+#if __cplusplus >= 201703L
+void *operator new(std::size_t size, std::align_val_t align);
+void *operator new[](std::size_t size, std::align_val_t align);
+#endif
+
+void operator delete(void *ptr) noexcept;
+void operator delete[](void *ptr) noexcept;
+#if __cplusplus >= 201402L
+void operator delete(void *ptr, std::size_t size) noexcept;
+void operator delete[](void *ptr, std::size_t size) noexcept;
+#endif
+#if __cplusplus >= 201703L
+void operator delete(void *ptr, std::align_val_t align) noexcept;
+void operator delete[](void *ptr, std::align_val_t align) noexcept;
+void operator delete(void *ptr, std::size_t size, std::align_val_t align) noexcept;
+void operator delete[](void *ptr, std::size_t size, std::align_val_t align) noexcept;
+#endif

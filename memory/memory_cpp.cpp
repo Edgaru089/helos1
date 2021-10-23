@@ -1,13 +1,27 @@
+#include "memory.h"
 #include "memory.hpp"
 
-void *operator new(std::size_t size) {
-	void *data = kMalloc(size);
-	/*if (!data) {
-		throw helos::bad_alloc();
-	}*/
-	return data;
-}
+#include "../extlib/dlmalloc/malloc-2.8.6.h"
 
-void operator delete(void *ptr) noexcept {
-	kFree(ptr);
-}
+void *operator new(std::size_t size) { return kMalloc(size); }
+void *operator new[](std::size_t size) { return kMalloc(size); }
+
+void operator delete(void *ptr) noexcept { kFree(ptr); }
+void operator delete[](void *ptr) noexcept { kFree(ptr); }
+
+
+#if __cplusplus >= 201703L
+void *operator new(std::size_t size, std::align_val_t align) { return dlmemalign((size_t)align, size); }
+void *operator new[](std::size_t size, std::align_val_t align) { return dlmemalign((size_t)align, size); }
+#endif
+
+#if __cplusplus >= 201402L
+void operator delete(void *ptr, std::size_t size) noexcept { kFree(ptr); }
+void operator delete[](void *ptr, std::size_t size) noexcept { kFree(ptr); }
+#endif
+#if __cplusplus >= 201703L
+void operator delete(void *ptr, std::align_val_t align) noexcept { kFree(ptr); }
+void operator delete[](void *ptr, std::align_val_t align) noexcept { kFree(ptr); }
+void operator delete(void *ptr, std::size_t size, std::align_val_t align) noexcept { kFree(ptr); }
+void operator delete[](void *ptr, std::size_t size, std::align_val_t align) noexcept { kFree(ptr); }
+#endif
