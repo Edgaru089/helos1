@@ -34,7 +34,7 @@ uint8_t queue_PopByte(queue *q) {
 	return data;
 }
 
-uint8_t queue_TopByte(queue *q) {
+uint8_t queue_FrontByte(queue *q) {
 	if (q->count == 0) {
 		io_WriteConsoleASCII("queue_TopByte: accessing an empty queue\n");
 		return 0;
