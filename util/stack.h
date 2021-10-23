@@ -46,6 +46,9 @@ uintptr_t stack_Size(stack *s);
 // returns the empty space left in the stack
 uintptr_t stack_Space(stack *s);
 
+// clears the stack
+void stack_Clear(stack *s);
+
 
 #ifdef __cplusplus
 }

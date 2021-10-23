@@ -69,3 +69,7 @@ uintptr_t stack_Size(stack *s) {
 uintptr_t stack_Space(stack *s) {
 	return s->top - s->data;
 }
+
+void stack_Clear(stack *s) {
+	s->top = s->data + s->size;
+}
