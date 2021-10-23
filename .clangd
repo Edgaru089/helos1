@@ -1,10 +1,10 @@
 CompileFlags:
 	Add: [-I/usr/include/efi, -I/usr/include/efi/x86_64, -DHELOS]
 ---
-If:
+If: 
 	PathMatch: [.*\.h, .*\.c]
 CompileFlags:
-	Add: [-xc, -std=c99]
+	Add: [-xc]
 ---
 If:
 	PathMatch: [.*\.hpp, .*\.cpp]
