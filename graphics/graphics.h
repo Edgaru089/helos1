@@ -40,6 +40,7 @@ void graphics_Init();
 void graphics_GetSize(int *sizeX, int *sizeY, int *bitsPerPixel);
 void graphics_ClearBuffer(const HelosGraphics_Color *color);
 void graphics_SwapBuffer();
+void graphics_Invalidate(int left, int top, int width, int height); // Invalidates a rectangular region
 
 
 // graphics_SetPixel is set by Init() to match one of SetPixel_RGB/BGR according to the framebuffer format.
@@ -60,7 +61,7 @@ extern int graphics_CursorX, graphics_CursorY;
 void graphics_Scroll(int scrollY);
 // graphics_ElementSize handles size of an graphics element: scrolling, line breaking, etc.
 //
-// It does not change CursorX/Y, however.
+// It does not change CursorX/Y, however. Neither does it call Invalidate().
 void graphics_ElementSize(int sizeX, int sizeY);
 void graphics_Newline(int advanceY);
 

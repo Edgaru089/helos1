@@ -6,6 +6,7 @@
 #include "unifont.h"
 #include "../runtime/stdio.h"
 #include "../util/minmax.h"
+#include "../util/stack.h"
 #include <efiprot.h>
 
 #include <assert.h>
@@ -43,6 +44,15 @@ int                        graphics_MouseCursorX, graphics_MouseCursorY;
 static int                 __lastMouseX, __lastMouseY; // Last of mouse **IMAGE** position
 static int                 __lastMouseSizeX, __lastMouseSizeY;
 static uint32_t            __mouseOverlay[MOUSE_OVERLAY_SIZE * MOUSE_OVERLAY_SIZE];
+
+#define INVALIDATED_BUFFER_SIZE 32
+typedef struct {
+	uint32_t left, top;
+	uint32_t width, height;
+} PACKED               __graphics_Rect;
+static bool            __invalidated_screen;
+static stack *         __invalidated;
+static __graphics_Rect __invalidated_buffer[INVALIDATED_BUFFER_SIZE];
 
 
 void graphics_Init() {
@@ -115,6 +125,9 @@ void graphics_Init() {
 
 	graphics_MouseCursorX = graphics_SystemVideoMode.Width / 2;
 	graphics_MouseCursorY = graphics_SystemVideoMode.Height / 2;
+
+	stack_InitBuffered(__invalidated, __invalidated_buffer, sizeof(__invalidated_buffer));
+	__invalidated_screen = false;
 }
 
 
@@ -184,6 +197,8 @@ static void __graphics__UpdateMouse() {
 			graphics_Cursor->pixels, 0, 0, graphics_Cursor->width, graphics_Cursor->height,
 			graphics_Framebuffer, imgX, imgY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
 			graphics_Cursor->width, graphics_Cursor->height);
+		graphics_Invalidate(__lastMouseX, __lastMouseY, __lastMouseSizeX, __lastMouseSizeY);
+		graphics_Invalidate(imgX, imgY, graphics_Cursor->width, graphics_Cursor->height);
 		__lastMouseX     = imgX;
 		__lastMouseY     = imgY;
 		__lastMouseSizeX = graphics_Cursor->width;
@@ -193,7 +208,22 @@ static void __graphics__UpdateMouse() {
 
 void graphics_SwapBuffer() {
 	__graphics__UpdateMouse();
-	memcpy(graphics_DeviceFramebuffer, graphics_Framebuffer, graphics_FramebufferSize);
+	if (__invalidated_screen)
+		memcpy(graphics_DeviceFramebuffer, graphics_Framebuffer, graphics_FramebufferSize);
+	else {
+		__graphics_Rect r;
+		while (stack_Pop(__invalidated, &r, sizeof(__graphics_Rect))) {
+			__graphics_CopyBuffer32(
+				graphics_Framebuffer,
+				r.left, r.top,
+				graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
+				graphics_DeviceFramebuffer,
+				r.left, r.top,
+				graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height,
+				r.width, r.height);
+		}
+	}
+	stack_Clear(__invalidated);
 }
 
 void graphics_FillPixel(int startX, int startY, int endX, int endY, const HelosGraphics_Color *color) {
@@ -212,6 +242,40 @@ void graphics_FillPixel(int startX, int startY, int endX, int endY, const HelosG
 
 				*((uint32_t *)(graphics_Framebuffer + graphics_SystemVideoMode.PixelsPerLine * 4 * j + 4 * i)) = (*((uint32_t *)&colorRGB));
 			}
+	graphics_Invalidate(startX, startY, endX - startX, endY - startY);
+}
+
+void graphics_Invalidate(int left, int top, int width, int height) {
+	if (stack_Space(__invalidated) < sizeof(__graphics_Rect)) {
+		// No more space - invalidate the entire screen
+		__invalidated_screen = true;
+		return;
+	}
+	__graphics_Rect prev, r = {left, top, width, height};
+	// Try to merge the new rect with the last one
+#define POPOLD_SETNEW(a, b, c, d)                                 \
+	{                                                             \
+		r.left   = a;                                             \
+		r.top    = b;                                             \
+		r.width  = c;                                             \
+		r.height = d;                                             \
+		stack_Pop(__invalidated, &prev, sizeof(__graphics_Rect)); \
+	}
+	if (stack_Top(__invalidated, &prev, sizeof(__graphics_Rect)) != 0) {
+		if (prev.top == r.top && prev.height == r.height) {
+			if (prev.left + prev.width == r.left)
+				POPOLD_SETNEW(prev.left, r.top, prev.width + r.width, r.height)
+			else if (r.left + r.width == prev.left)
+				POPOLD_SETNEW(r.left, r.top, r.width + prev.width, r.height)
+		} else if (prev.left == r.left && prev.width == r.width) {
+			if (prev.top + prev.height == r.top)
+				POPOLD_SETNEW(r.left, prev.top, r.width, prev.height + r.height)
+			else if (r.top + r.height == prev.top)
+				POPOLD_SETNEW(r.left, r.top, r.width, r.height + prev.height);
+		}
+	}
+	stack_Push(__invalidated, &r, sizeof(__graphics_Rect));
+#undef POPOLD_SETNEW
 }
 
 int graphics_CursorX, graphics_CursorY;
@@ -228,6 +292,7 @@ void graphics_Scroll(int scrollY) {
 		sizeof(uint32_t) * graphics_SystemVideoMode.PixelsPerLine * (scrollY));*/
 	graphics_FillPixel(0, graphics_SystemVideoMode.Height - scrollY, graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height, &HelosGraphics_Color_Black);
 	__lastMouseY -= scrollY;
+	__invalidated_screen = true; // invalidates the whole screen
 }
 
 void graphics_ElementSize(int sizeX, int sizeY) {
@@ -261,6 +326,7 @@ void console_WriteChar(const HelosGraphics_Color *color, uint32_t c) {
 			graphics_ElementSize(width, UNIFONT_CHAR_HEIGHT);
 			graphics_FillPixel(graphics_CursorX, graphics_CursorY, graphics_CursorX + width, graphics_CursorY + UNIFONT_CHAR_HEIGHT, &HelosGraphics_Color_Black);
 			unifont_DrawChar(graphics_CursorX, graphics_CursorY, color, c);
+			graphics_Invalidate(graphics_CursorX, graphics_CursorY, width, UNIFONT_CHAR_HEIGHT);
 			graphics_CursorX += width;
 	}
 }
