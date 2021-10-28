@@ -4,6 +4,8 @@
 #include "color.h"
 #include "internal_helpers.h"
 #include "unifont.h"
+#include "../driver/input/input.h"
+#include "../driver/input/source.h"
 #include "../runtime/stdio.h"
 #include "../util/minmax.h"
 #include "../util/stack.h"
@@ -40,7 +42,6 @@ uint32_t graphics_Doublebuffer[2048 * 1024];
 
 #define MOUSE_OVERLAY_SIZE 32
 xcursor_ChunkHeader_Image *graphics_Cursor;
-int                        graphics_MouseCursorX, graphics_MouseCursorY;
 static int                 __lastMouseX, __lastMouseY; // Last of mouse **IMAGE** position
 static int                 __lastMouseSizeX, __lastMouseSizeY;
 static uint32_t            __mouseOverlay[MOUSE_OVERLAY_SIZE * MOUSE_OVERLAY_SIZE];
@@ -121,8 +122,8 @@ void graphics_Init() {
 	graphics_Framebuffer     = (void *)graphics_Doublebuffer;
 	graphics_CursorX = graphics_CursorY = 0;
 
-	graphics_MouseCursorX = graphics_SystemVideoMode.Width / 2;
-	graphics_MouseCursorY = graphics_SystemVideoMode.Height / 2;
+	input_source_SetDesktopSize(graphics_SystemVideoMode.Width, graphics_SystemVideoMode.Height);
+	input_source_PositionMouse(graphics_SystemVideoMode.Width / 2, graphics_SystemVideoMode.Height / 2);
 
 	stack_InitBuffered(__invalidated, __invalidated_buffer, sizeof(__invalidated_buffer));
 	__invalidated_screen = false;
@@ -178,8 +179,11 @@ static void __graphics__UpdateMouse() {
 	if (!graphics_Cursor)
 		return;
 
-	int imgX = graphics_MouseCursorX - graphics_Cursor->xhot + 1;
-	int imgY = graphics_MouseCursorY - graphics_Cursor->yhot + 1;
+	int x, y;
+	input_MousePosition(&x, &y);
+
+	int imgX = x - graphics_Cursor->xhot + 1;
+	int imgY = y - graphics_Cursor->yhot + 1;
 	if (imgX != __lastMouseX || imgY != __lastMouseY || graphics_Cursor->width != __lastMouseSizeX || graphics_Cursor->height != __lastMouseSizeY) { // moved
 		__graphics_CopyBuffer32(
 			__mouseOverlay, 0, 0, MOUSE_OVERLAY_SIZE, MOUSE_OVERLAY_SIZE,

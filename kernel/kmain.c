@@ -11,6 +11,7 @@
 #include "../interrupt/syscall.h"
 #include "../driver/irq/pic/pic.h"
 #include "../driver/irq/pic/ps2/ps2.h"
+#include "../driver/input/source.h"
 
 #include "../execformat/pe/reloc.h"
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
@@ -85,8 +86,7 @@ SYSV_ABI void kMain() {
 			d              = queue_PopByte(&irq_pic_ps2_QueueMouse);
 			moveY          = d - ((state << 3) & 0x100);
 
-			graphics_MouseCursorX = minmax(graphics_MouseCursorX + *((int *)&moveX), 0, graphics_SystemVideoMode.Width - 1);
-			graphics_MouseCursorY = minmax(graphics_MouseCursorY - *((int *)&moveY), 0, graphics_SystemVideoMode.Height - 1);
+			input_source_MoveMouse(moveX, -moveY);
 
 			if (irq_pic_ps2_Mouse4Bytes)
 				queue_PopByte(&irq_pic_ps2_QueueMouse);

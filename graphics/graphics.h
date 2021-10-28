@@ -29,7 +29,6 @@ extern uint64_t           graphics_FramebufferSize;
 extern HelosGraphics_Mode graphics_SystemVideoMode; // system video mode
 
 extern xcursor_ChunkHeader_Image *graphics_Cursor; // mouse cursor image
-extern int                        graphics_MouseCursorX, graphics_MouseCursorY;
 
 
 // Init() must be called prior to ExitBootServices()

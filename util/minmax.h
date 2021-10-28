@@ -32,3 +32,12 @@ static inline int intmax3(int x, int y, int z) {
 	else
 		return z;
 }
+
+static inline int intminmax(int x, int min, int max) {
+	if (x < min)
+		return min;
+	else if (x > max)
+		return max;
+	else
+		return x;
+}
