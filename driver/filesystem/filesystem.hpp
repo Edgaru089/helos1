@@ -250,6 +250,9 @@ public:
 
 	// Close an open directory.
 	virtual int Closedir(const char *path, OpenFile *file) { return -ENOSYS; }
+
+	// Ioctl (arbitrary action performed on the opened file)
+	virtual uintptr_t Ioctl(const char *path, uintptr_t cmd, void *arg, OpenFile *file) { return -ENOSYS; }
 };
 
 
