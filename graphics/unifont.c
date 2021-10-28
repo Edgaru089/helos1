@@ -9,14 +9,27 @@ void unifont_DrawChar(int posX, int posY, const HelosGraphics_Color *color, uint
 	const unsigned char *data = unifont_Data + codepoint * UNIFONT_CHAR_WIDTH * UNIFONT_CHAR_HEIGHT * 2 / 8;
 	bool                 wide = unifont_IsCharDoublewidth(codepoint);
 
-	int charWidth = UNIFONT_CHAR_WIDTH * (wide ? 2 : 1);
-
-	for (int x = 0; x < charWidth; x++)
+	// HACK Assuming UNIFONT_CHAR_WIDTH is 8
+	if (wide) {
+		const uint8_t *line = data;
 		for (int y = 0; y < UNIFONT_CHAR_HEIGHT; y++) {
-			int pos = y * charWidth + x;
-			if (data[pos / 8] & (1u << (7 - pos % 8)))
-				graphics_SetPixel(posX + x, posY + y, color);
+			for (int x = 0; x < UNIFONT_CHAR_WIDTH; x++)
+				if (*line & (1u << (7 - x % 8)))
+					graphics_SetPixel(posX + x, posY + y, color);
+			line++;
+			for (int x = 0; x < UNIFONT_CHAR_WIDTH; x++)
+				if (*line & (1u << (7 - x % 8)))
+					graphics_SetPixel(posX + x + 8, posY + y, color);
+			line++;
 		}
+	} else {
+		const uint8_t *line = data;
+		for (int y = 0; y < UNIFONT_CHAR_HEIGHT; y++, line++) {
+			for (int x = 0; x < UNIFONT_CHAR_WIDTH; x++)
+				if (*line & (1u << (7 - x % 8)))
+					graphics_SetPixel(posX + x, posY + y, color);
+		}
+	}
 }
 
 void unifont_DrawString(int posX, int posY, const HelosGraphics_Color *color, const uint32_t *codepoints, int count) {
