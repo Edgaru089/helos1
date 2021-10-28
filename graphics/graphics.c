@@ -223,6 +223,7 @@ void graphics_SwapBuffer() {
 				r.width, r.height);
 		}
 	}
+	__invalidated_screen = false;
 	stack_Clear(__invalidated);
 }
 
