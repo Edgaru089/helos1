@@ -43,13 +43,17 @@ void graphics_SwapBuffer();
 void graphics_Invalidate(int left, int top, int width, int height); // Invalidates a rectangular region
 
 
-// graphics_SetPixel is set by Init() to match one of SetPixel_RGB/BGR according to the framebuffer format.
-typedef void(graphics_SetPixel_Type)(int posX, int posY, const HelosGraphics_Color *color);
-extern graphics_SetPixel_Type *graphics_SetPixel;
-
 // graphics_SetPixel_RGB/BGR writes the given pixel to the framebuffer in RGB/BGR format.
 void graphics_SetPixel_RGB(int posX, int posY, const HelosGraphics_Color *color);
 void graphics_SetPixel_BGR(int posX, int posY, const HelosGraphics_Color *color);
+
+// graphics_SetPixel calls one of SetPixel_RGB/BGR according to the framebuffer format.
+static inline void graphics_SetPixel(int posX, int posY, const HelosGraphics_Color *color) {
+	if (graphics_SystemVideoMode.PixelFormat == PixelBlueGreenRedReserved8BitPerColor)
+		graphics_SetPixel_BGR(posX, posY, color);
+	else if (graphics_SystemVideoMode.PixelFormat == PixelRedGreenBlueReserved8BitPerColor)
+		graphics_SetPixel_RGB(posX, posY, color);
+}
 
 
 void graphics_FillPixel(int startX, int startY, int endX, int endY, const HelosGraphics_Color *color);

@@ -110,9 +110,7 @@ void graphics_Init() {
 	case v: io_Printf(#v "\r\n");
 	switch (gop->Mode->Info->PixelFormat) {
 		CASE(PixelRedGreenBlueReserved8BitPerColor)
-		graphics_SetPixel = graphics_SetPixel_RGB;
 		CASE(PixelBlueGreenRedReserved8BitPerColor)
-		graphics_SetPixel = graphics_SetPixel_BGR;
 		CASE(PixelBitMask)
 		CASE(PixelBltOnly)
 		CASE(PixelFormatMax)
@@ -130,8 +128,6 @@ void graphics_Init() {
 	__invalidated_screen = false;
 }
 
-
-graphics_SetPixel_Type *graphics_SetPixel;
 
 void graphics_SetPixel_RGB(int posX, int posY, const HelosGraphics_Color *color) {
 	struct {
