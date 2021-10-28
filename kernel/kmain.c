@@ -11,7 +11,6 @@
 #include "../interrupt/syscall.h"
 #include "../driver/irq/pic/pic.h"
 #include "../driver/irq/pic/ps2/ps2.h"
-#include "../driver/input/source.h"
 
 #include "../execformat/pe/reloc.h"
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
@@ -73,24 +72,6 @@ SYSV_ABI void kMain() {
 
 	for (;;) {
 		asm volatile("hlt");
-
-		while (queue_Size(&irq_pic_ps2_QueueMouse) >= (irq_pic_ps2_Mouse4Bytes ? 4 : 3)) {
-			unsigned int moveX, moveY, state;
-
-			do {
-				state = queue_PopByte(&irq_pic_ps2_QueueMouse);
-			} while (!(state & (1u << 3)));
-
-			unsigned int d = queue_PopByte(&irq_pic_ps2_QueueMouse);
-			moveX          = d - ((state << 4) & 0x100);
-			d              = queue_PopByte(&irq_pic_ps2_QueueMouse);
-			moveY          = d - ((state << 3) & 0x100);
-
-			input_source_MoveMouse(moveX, -moveY);
-
-			if (irq_pic_ps2_Mouse4Bytes)
-				queue_PopByte(&irq_pic_ps2_QueueMouse);
-		}
 
 		//io_WriteConsoleASCII("kMain: Interrupt hit\n");
 		graphics_SwapBuffer();

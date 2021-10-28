@@ -7,6 +7,7 @@
 #include "../../../../runtime/panic_assert.h"
 #include "../../../../runtime/stdio.h"
 #include "../../../../graphics/graphics.h"
+#include "../../../../driver/input/source.h"
 
 
 bool irq_pic_ps2_HasMouse;
@@ -88,4 +89,23 @@ SYSV_ABI void irq_pic_ps2_IRQHandlerK() {
 
 SYSV_ABI void irq_pic_ps2_IRQHandlerM() {
 	queue_PushByte(&irq_pic_ps2_QueueMouse, inb(IRQ_PIC_PS2_IOPORT));
+
+	while (queue_Size(&irq_pic_ps2_QueueMouse) && !(queue_FrontByte(&irq_pic_ps2_QueueMouse) & (1u << 3)))
+		queue_PopByte(&irq_pic_ps2_QueueMouse);
+
+	while (queue_Size(&irq_pic_ps2_QueueMouse) >= (irq_pic_ps2_Mouse4Bytes ? 4 : 3)) {
+		unsigned int moveX, moveY, state;
+
+		state = queue_PopByte(&irq_pic_ps2_QueueMouse);
+
+		unsigned int d = queue_PopByte(&irq_pic_ps2_QueueMouse);
+		moveX          = d - ((state << 4) & 0x100);
+		d              = queue_PopByte(&irq_pic_ps2_QueueMouse);
+		moveY          = d - ((state << 3) & 0x100);
+
+		input_source_MoveMouse(moveX, -moveY);
+
+		if (irq_pic_ps2_Mouse4Bytes)
+			queue_PopByte(&irq_pic_ps2_QueueMouse);
+	}
 }
