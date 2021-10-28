@@ -55,11 +55,6 @@ void irq_pic_ps2_Init() {
 	}
 	io_Printf("%X ", data);
 
-	// enable mouse reporting
-	io_WriteConsoleASCII("MOUSE_ENABLE_REPORTING... ");
-	__ps2_WriteCommandData(IRQ_PIC_PS2_CMD_SEND_MOUSE, IRQ_PIC_PS2_CMD_DEVICE_MOUSE_ENABLE_REPORTING);
-	__ps2_ReadACK(); // receive ACK
-
 	// enable 4-byte mode for mouse, pure magic!
 	irq_pic_ps2_Mouse4Bytes = false;
 	__ps2_SetMouseRate(200);
@@ -78,6 +73,11 @@ void irq_pic_ps2_Init() {
 
 	// set the actual mouse sample rate
 	__ps2_SetMouseRate(IRQ_PIC_PS2_MOUSE_SAMPLERATE);
+
+	// enable mouse reporting
+	io_WriteConsoleASCII("MOUSE_ENABLE_REPORTING... ");
+	__ps2_WriteCommandData(IRQ_PIC_PS2_CMD_SEND_MOUSE, IRQ_PIC_PS2_CMD_DEVICE_MOUSE_ENABLE_REPORTING);
+	__ps2_ReadACK(); // receive ACK
 
 	INTERRUPT_RESTORE;
 }

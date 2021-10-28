@@ -46,6 +46,7 @@ extern "C" {
 #define IRQ_PIC_PS2_CMD_DEVICE_RESET                   0xff
 #define IRQ_PIC_PS2_CMD_DEVICE_MOUSE_DISABLE_REPORTING 0xf5
 #define IRQ_PIC_PS2_CMD_DEVICE_MOUSE_ENABLE_REPORTING  0xf4
+#define IRQ_PIC_PS2_CMD_DEVICE_MOUSE_REQUEST_PACKET    0xeb
 
 void irq_pic_ps2_Init();
 
