@@ -51,6 +51,9 @@ bool operator!=(const kAllocator<T> &, const kAllocator<U> &) {
 } // namespace helos
 
 
+// overload new/delete only in the real kernel, not in testing
+#ifdef HELOS
+
 // globally overload the new and delete operators
 // so keep this header at the top of every source file
 //
@@ -76,3 +79,5 @@ void operator delete[](void *ptr, std::align_val_t align) noexcept;
 void operator delete(void *ptr, std::size_t size, std::align_val_t align) noexcept;
 void operator delete[](void *ptr, std::size_t size, std::align_val_t align) noexcept;
 #endif
+
+#endif // HELOS

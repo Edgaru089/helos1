@@ -1,0 +1,113 @@
+
+Re: FAT12 vs FAT16
+from the Linux kernel mailing list
+
+
+Martin Mares (mj@atrey.karlin.mff.cuni.cz)
+Fri, 22 Aug 1997 13:10:56 +0200
+http://lkml.iu.edu/hypermail/linux/kernel/9708.2/0498.html
+
+	There are the following ways to determine FAT type:
+
+	(1) "FAT12" or "FAT16" string in the boot block. Not reliable and not supported
+	in all DOS versions.
+
+	(2) "Sector/cluster count rules" -- described for example in the Tech Help.
+	Varies between DOS versions. Even if you know the DOS version, you can still
+	be wrong as the disk might have been formatted on a different version.
+
+	(3) Partition type. Seems to be totally ignored by DOS and sometimes very
+	unreliable as DOS's format command doesn't alter this during reformatting
+	(if you create the partition by one DOS version and format it by another one,
+	an inconsistency might arise).
+
+	(4) Number of sectors per FAT -- this value must be correct as the root
+	directory position is calculated from it, but it sometimes allows both
+	possibilities (although such cases are very rare).
+
+	(5) Number of 0xff's at the start of the FAT. As you can remember, the first
+	two cluster numbers are reserved for special purposes and their FAT entries
+	are set to 0xff with an exception of the first FAT byte which contains a media
+	descriptor. If there are less than 3 0xff's, the FAT must be 12-bit. In other
+	case, both types are possible.
+
+
+
+Richard B. Johnson (root@analogic.com)
+Fri, 22 Aug 1997 15:53:45 -0400 (EDT)
+http://lkml.iu.edu/hypermail/linux/kernel/9708.2/0527.html
+
+	No No No No! Page 3-7 of the MS-DOS Technical information (the real
+	system integrator's manual) states:
+
+	"For disks containing more than 4085 clusters (note that
+	4085 is the correct number), a 16-bit FAT entry is used."
+
+	The number of clusters is calculated from the BPB in the boot record from
+	the BYTE Custer size and the rest of the information about the size
+	of the media. The number of sectors entry is the total of the media.
+	You perform the indicated operations which even provides for the
+	reserved sectors (like for the boot record), and come up with the
+	number of clusters.
+
+	----- (some code resembling the BIOSParamBlock struct) -----
+
+	This will always work. It must work. This is how MS-DOS knows the size
+	of the media.
+
+	I used to get paid for making strange media work on MS-DOS. This will
+	always work. The media descriptor doesn't mean anything any more nor
+	does the OEM Name, etc. However the other information is updated in
+	this table when the disk is formatted. The boot record loading code
+	with a 360 kb floppy boot-record BPB is used by FORMAT, etc. It is
+	modified before being written to the physical media. This same boot
+	record is used for all MS-DOS media and is modified before being written.
+
+	You can copy the boot record from a 1.2 mb floppy to a 1.44 mb floppy
+	and you will find that MS-DOS thinks it is now a 1.2 mb floppy. You
+	can use format/u to reformat it "as-is", and it is now a 1.2 mb floppy!
+
+
+
+Martin Mares (mj@atrey.karlin.mff.cuni.cz)
+Fri, 22 Aug 1997 23:36:57 +0200
+http://lkml.iu.edu/hypermail/linux/kernel/9708.2/0537.html
+
+	This is correct, but not sufficient for FAT type detection as you can
+	have a disk with _less_ than 4085 clusters and 16-bit FAT.
+
+	Have a nice fortnight
+
+
+
+Richard B. Johnson (root@analogic.com)
+Fri, 22 Aug 1997 18:12:30 -0400 (EDT)
+http://lkml.iu.edu/hypermail/linux/kernel/9708.2/0542.html
+
+	Not if it's a disk supported by MS-DOS or created using MS-DOS tools.
+	MS-DOS format will not (read cannot) make such a disk. Even with its
+	media type/size/heads options, it doesn't have the code necessary to
+	produce a disk under any other rules because it calculates the
+	clusters not you, and it uses the 4085 cluster rule for writing the FAT.
+
+	Just because, in principle I can make a disk with one cluster and a 16-bit
+	FAT, does not mean that it is a MS-DOS disk. MS-DOS will not understand
+	such a disk so no other OS should bother with such a deviation either.
+
+
+
+H. Peter Anvin (hpa@transmeta.com)
+23 Aug 1997 00:04:49 GMT
+http://lkml.iu.edu/hypermail/linux/kernel/9708.2/0549.html
+
+	I once came across a DOS floppy formatted with FAT16; I think some (OEM?)
+	version of DOS 2.x or 3.x always formatted FAT16. Surprised the
+	living daylight out of me...
+
+
+
+Martin Mares (mj@atrey.karlin.mff.cuni.cz)
+Sat, 23 Aug 1997 11:49:03 +0200
+http://lkml.iu.edu/hypermail/linux/kernel/9708.2/0567.html
+
+	Unfortunately, the rules are not the same for different DOS versions :-(

@@ -1,14 +1,19 @@
 #pragma once
 
 #include "../../cppruntime/runtime.hpp"
+#include "../block/blockdevice.hpp"
 
 namespace helos {
 
+namespace filesystem {
 
-// Filesystems are created per-mount.
+
+// Filesystems are created per-mount, or on filesystem register only for the Allocate functions.
 //
 // Paths always begin with "/".
 // Functions return negative numbers on error.
+//
+// This class does not facilitate utilties to format, check, or resize filesystems.
 class Filesystem {
 public:
 	typedef uint16_t uid_t, gid_t; // User and group ID types
@@ -74,6 +79,8 @@ public:
 
 		bool   setfmask, setdmask; // If true, file/directory permissions are masked with the given values.
 		mode_t fmask, dmask;       // (Corresponding bits cleared)
+
+		bool readonly; // If true, the filesystem should be opened read-only, and no writes should be done.
 	};
 
 	// Information on an open file.
@@ -85,6 +92,8 @@ public:
 		bool         nonseekable : 1;
 		unsigned int padding : 31;
 		unsigned int padding2 : 32;
+
+		int errno; // errno of the last operation, only need to be set for Read()/Write()
 
 		// File handle. Filled in by Create(), Open(), Opendir().
 		uint64_t handle;
@@ -116,13 +125,20 @@ public:
 		uint64_t TimeAccess, TimeModification; // UNIX time of last access/modification
 	};
 
-	// New is called to create a new Filesystem instance from a given source.
+	// Allocate is called to create a new Filesystem instance from a given source.
 	//
 	// The source paramater is quite special.
 	// Beginning with "/" means a local file source (device or image).
 	// Beginning with a "//" means a network target (URL).
 	// Otherwise, this string is non-canonical and its behavior is implementation-depedent.
-	typedef Filesystem *(*New)(const char *source, Config *config);
+	//
+	// On error, NULL is returned.
+	virtual Filesystem *Allocate(const char *source, Config *config) { return nullptr; }
+
+	// AllocateBlock is called to create a new Filesystem instance from a Block Device.
+	//
+	// On error, NULL is returned.
+	virtual Filesystem *AllocateBlock(BlockDevice *block, Config *config) { return nullptr; }
 
 public:
 	// Filesystem implementation capabilitiy bits
@@ -256,4 +272,5 @@ public:
 };
 
 
+} // namespace filesystem
 } // namespace helos
