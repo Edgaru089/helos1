@@ -1,0 +1,23 @@
+#pragma once
+#include <__cpp_config.hpp>
+
+extern "C++" {
+namespace std {
+
+
+class exception {
+public:
+	exception() __NOTHROW {}
+#ifdef __CXX11
+	exception(const exception &) = default;
+	exception &operator=(const exception &) = default;
+	exception(exception &&)                 = default;
+	exception &operator=(exception &&) = default;
+#endif
+
+	virtual const char *what() const __NOTHROW { return "std::exception"; };
+};
+
+
+} // namespace std
+}

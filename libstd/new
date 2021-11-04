@@ -1,0 +1,51 @@
+#pragma once
+#include <__cpp_config.hpp>
+
+#include <exception>
+
+extern "C++" {
+namespace std {
+
+
+class bad_alloc: public exception {
+public:
+	bad_alloc() __NOTHROW {}
+#ifdef __CXX11
+	bad_alloc(const bad_alloc &) = default;
+	bad_alloc &operator=(const bad_alloc &) = default;
+#endif
+	virtual ~bad_alloc() __NOTHROW {}
+
+	virtual const char *what() const __NOTHROW { return "std::bad_alloc"; }
+};
+
+#ifdef __CXX11
+class bad_array_new_length: public bad_alloc {
+public:
+	bad_array_new_length() __NOTHROW {}
+	virtual ~bad_array_new_length() __NOTHROW {}
+
+	virtual const char *what() const __NOTHROW { return "std::bad_array_new_length"; }
+};
+#endif
+
+
+#ifdef __CXX17
+enum class align_val_t : size_t {};
+#endif
+
+struct nothrow_t {
+#ifdef __CXX11
+	explicit nothrow_t() = default;
+#endif
+};
+extern const nothrow_t nothrow;
+
+
+// new_handler omitted
+
+// new/delete omitted, use memory/memory.hpp
+
+
+} // namespace std
+}

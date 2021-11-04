@@ -25,7 +25,7 @@ public:
 	uint64_t Size() const override { return blockcount; }
 	uint64_t SizeBytes() const override { return blocksize * blockcount; }
 
-	::helos::Permission Permission() const override { return perm; }
+	::helos::Permission DevicePermission() const override { return perm; }
 
 	uint64_t ReadBlock(uint64_t blockOffset, void *data, uint64_t blockCount) const override;
 	uint64_t WriteBlock(uint64_t blockOffset, const void *data, uint64_t blockCount) override;

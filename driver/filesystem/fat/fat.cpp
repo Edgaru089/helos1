@@ -1,6 +1,6 @@
 
 #include "fat.hpp"
-#include <cstring>
+#include <string.h>
 
 namespace helos {
 namespace filesystem {

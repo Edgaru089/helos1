@@ -2,7 +2,7 @@
 #include "ramdisk.hpp"
 #include "../../memory/memory.h"
 #include "../../memory/paging_internal.h"
-#include <cstring>
+#include <string.h>
 
 namespace helos {
 

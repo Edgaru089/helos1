@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstddef>
-#include <limits>
+#include <stddef.h>
 #include <new>
 
 #include "memory.h"
@@ -30,11 +29,11 @@ public:
 	template<typename Other>
 	constexpr kAllocator(const kAllocator<Other> &) {}
 
-	Type *allocate(std::size_t n) {
+	Type *allocate(size_t n) {
 		return kMalloc(n * sizeof(Type));
 	}
 
-	void deallocate(Type *p, std::size_t n) {
+	void deallocate(Type *p, size_t n) {
 		kFree(p);
 	}
 };
@@ -59,25 +58,25 @@ bool operator!=(const kAllocator<T> &, const kAllocator<U> &) {
 //
 // operators new and delete only call kMalloc/kFree, so C++ code
 // must stay after paging setup
-void *operator new(std::size_t size);
-void *operator new[](std::size_t size);
+void *operator new(size_t size);
+void *operator new[](size_t size);
 
 #if __cplusplus >= 201703L
-void *operator new(std::size_t size, std::align_val_t align);
-void *operator new[](std::size_t size, std::align_val_t align);
+void *operator new(size_t size, std::align_val_t align);
+void *operator new[](size_t size, std::align_val_t align);
 #endif
 
 void operator delete(void *ptr) noexcept;
 void operator delete[](void *ptr) noexcept;
 #if __cplusplus >= 201402L
-void operator delete(void *ptr, std::size_t size) noexcept;
-void operator delete[](void *ptr, std::size_t size) noexcept;
+void operator delete(void *ptr, size_t size) noexcept;
+void operator delete[](void *ptr, size_t size) noexcept;
 #endif
 #if __cplusplus >= 201703L
 void operator delete(void *ptr, std::align_val_t align) noexcept;
 void operator delete[](void *ptr, std::align_val_t align) noexcept;
-void operator delete(void *ptr, std::size_t size, std::align_val_t align) noexcept;
-void operator delete[](void *ptr, std::size_t size, std::align_val_t align) noexcept;
+void operator delete(void *ptr, size_t size, std::align_val_t align) noexcept;
+void operator delete[](void *ptr, size_t size, std::align_val_t align) noexcept;
 #endif
 
 #endif // HELOS

@@ -1,7 +1,7 @@
 
 #include "stack.h"
 #include "../runtime/stdio.h"
-#include <memory.h>
+#include <string.h>
 
 
 void stack_InitBuffered(stack *s, void *buffer, uintptr_t size) {

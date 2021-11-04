@@ -22,8 +22,8 @@ public:
 		return backing->BlockSize() * cnt;
 	}
 
-	::helos::Permission Permission() const override {
-		return backing->Permission();
+	::helos::Permission DevicePermission() const override {
+		return backing->DevicePermission();
 	}
 
 	uint64_t ReadBlock(uint64_t blockOffset, void *data, uint64_t blockCount) const override {

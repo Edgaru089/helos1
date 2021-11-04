@@ -25,7 +25,7 @@ public:
 
 
 	// Permission returns the permission on the entire device (Read, Write, Exec)
-	virtual Permission Permission() const {
+	virtual Permission DevicePermission() const {
 		return PermRead | PermWrite | PermExecute;
 	}
 
