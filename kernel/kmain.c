@@ -53,7 +53,7 @@ SYSV_ABI void kMain() {
 
 	irq_pic_Init();
 	io_WriteConsoleASCII("PIC IRQ OK\n");
-	irq_pic_ps2_Init();
+	pic_ps2_Init();
 	io_WriteConsoleASCII("PIC PS/2 OK\n");
 
 	xcursor_Xcursor cursor;
