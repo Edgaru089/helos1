@@ -79,6 +79,26 @@ Filesystem *FAT::AllocateBlock(BlockDevice *block, FAT::Config *config) {
 	return fat;
 }
 
+int FAT::__NextCluster(int cluster) {
+	return 0;
+}
+
+int FAT::__Readdir(int cluster, void *user, Readdir_Callback callback) {
+	return 0;
+}
+
+int FAT::Readdir(const char *path, void *user, Readdir_Callback callback, OpenFile *file) {
+	return -ENOSYS;
+}
+
+int FAT::Opendir(const char *path, OpenFile *file) {
+	return -ENOSYS;
+}
+
+int FAT::Closedir(const char *path, OpenFile *file) {
+	return -ENOSYS;
+}
+
 
 } // namespace filesystem
 } // namespace helos
