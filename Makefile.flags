@@ -2,6 +2,10 @@
 .SILENT:
 
 
+# HELOS_RUNTIME_QUIET   Supress on-screen kernel output (not supressing serial output)
+export BUILD_OPTIONS = -DHELOS_RUNTIME_QUIET
+
+
 FLAGS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 SELF_DIR   = $(dir $@)
 
@@ -18,8 +22,8 @@ export FASM = echo "  FASM  $^" && fasm >/dev/null
 export INCLUDEFLAGS = -I/usr/include/efi -I/usr/include/efi/x86_64
 
 export CPPFLAGS =
-export CFLAGS   = $(INCLUDEFLAGS) -DHELOS -O2 -Wno-attributes -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone
-export CXXFLAGS = $(INCLUDEFLAGS) -DHELOS -O2 -Wno-unused-result -std=c++17 -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone -fno-exceptions -fno-rtti
+export CFLAGS   = $(INCLUDEFLAGS) -DHELOS $(BUILD_OPTIONS) -O2 -Wno-attributes -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone
+export CXXFLAGS = $(INCLUDEFLAGS) -DHELOS $(BUILD_OPTIONS) -O2 -Wno-unused-result -std=c++17 -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone -fno-exceptions -fno-rtti
 export LDFLAGS  = -T Linker.ld -O2 -eefiMain -nostdlib -shared -fPIE -ffreestanding -Wl,--dynamicbase,--subsystem,10 -o Main.efi -s
 export LDLIBS   = ../Unifont/unifont.o -lgcc
 

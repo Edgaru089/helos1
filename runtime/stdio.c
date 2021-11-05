@@ -14,6 +14,7 @@
 void _putchar(char c) {
 	pic_serial_Write(&pic_serial_COM1, &c, 1);
 
+#ifndef HELOS_RUNTIME_QUIET
 	if (!graphics_Framebuffer) {
 		UINT16 buf[2] = {c, 0};
 		efiStdout->OutputString(efiStdout, buf);
@@ -23,6 +24,7 @@ void _putchar(char c) {
 			graphics_SwapBuffer();
 		}
 	}
+#endif
 }
 
 int     __io_WriteConsole_bufSize = 512;
@@ -43,10 +45,11 @@ void __io_WriteConsole_ResizeBuffer(int size) {
 }
 
 void io_WriteConsole(const char *str) {
+	pic_serial_Write(&pic_serial_COM1, str, 0);
+
+#ifndef HELOS_RUNTIME_QUIET
 	int size = 0;           // don't include the \0 at the end here
 	int len  = strlen(str); // left the \0 out here too
-
-	pic_serial_Write(&pic_serial_COM1, str, len);
 
 	for (int i = 0;
 		 i < len;
@@ -66,11 +69,13 @@ void io_WriteConsole(const char *str) {
 	} else {
 		console_WriteUTF16(&HelosGraphics_Color_White, __io_WriteConsole_buffer, 0);
 	}
+#endif
 }
 
 void io_WriteConsoleASCII(const char *str) {
 	pic_serial_Write(&pic_serial_COM1, str, 0);
 
+#ifndef HELOS_RUNTIME_QUIET
 	if (!graphics_Framebuffer) {
 		int len = strlen(str);
 		__io_WriteConsole_ResizeBuffer(len + 1);
@@ -80,6 +85,7 @@ void io_WriteConsoleASCII(const char *str) {
 	} else {
 		console_WriteASCII(&HelosGraphics_Color_White, str, 0);
 	}
+#endif
 }
 
 char __io_Printf_buffer[4096];
@@ -96,10 +102,14 @@ int io_Printf(const char *fmt, ...) {
 }
 
 EFI_INPUT_KEY io_PauseForKeystroke() {
+#ifdef HELOS_RUNTIME_QUIET
+	EFI_INPUT_KEY k = {0, 0};
+	return k;
+#else
 	UINTN         index;
 	EFI_INPUT_KEY key;
 	efiBootServices->WaitForEvent(1, &efiStdin->WaitForKey, &index);
 	efiSystemTable->ConIn->ReadKeyStroke(efiSystemTable->ConIn, &key);
-
 	return key;
+#endif
 }
