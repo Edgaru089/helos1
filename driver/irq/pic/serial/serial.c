@@ -39,6 +39,7 @@ bool pic_serial_Init(pic_serial_Port *port, int baudrate, int lineFlags) {
 
 void pic_serial_Write(pic_serial_Port *port, const char *str, int n) {
 	if (port && port->ok) {
+		INTERRUPT_DISABLE;
 		if (n != 0) {
 			for (int i = 0; i < n; i++) {
 				while ((inb(port->port + 5) & 0x20) == 0) {}
@@ -51,5 +52,6 @@ void pic_serial_Write(pic_serial_Port *port, const char *str, int n) {
 				str++;
 			}
 		}
+		INTERRUPT_RESTORE;
 	}
 }
