@@ -4,6 +4,7 @@
 #include "printf.h"
 #include "../memory/memory.h"
 #include "../graphics/graphics.h"
+#include "../driver/irq/pic/serial/serial.h"
 
 #include <string.h>
 #include <stdarg.h>
@@ -11,6 +12,8 @@
 
 // printf wants this
 void _putchar(char c) {
+	pic_serial_Write(&pic_serial_COM1, &c, 1);
+
 	if (!graphics_Framebuffer) {
 		UINT16 buf[2] = {c, 0};
 		efiStdout->OutputString(efiStdout, buf);
@@ -43,6 +46,8 @@ void io_WriteConsole(const char *str) {
 	int size = 0;           // don't include the \0 at the end here
 	int len  = strlen(str); // left the \0 out here too
 
+	pic_serial_Write(&pic_serial_COM1, str, len);
+
 	for (int i = 0;
 		 i < len;
 		 i += utf8_Decode(str + i, len - i, NULL), size++) {}
@@ -64,6 +69,8 @@ void io_WriteConsole(const char *str) {
 }
 
 void io_WriteConsoleASCII(const char *str) {
+	pic_serial_Write(&pic_serial_COM1, str, 0);
+
 	if (!graphics_Framebuffer) {
 		int len = strlen(str);
 		__io_WriteConsole_ResizeBuffer(len + 1);

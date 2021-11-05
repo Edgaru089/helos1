@@ -7,6 +7,7 @@
 #include "graphics/graphics.h"
 #include "graphics/unifont.h"
 #include "memory/memory.h"
+#include "driver/irq/pic/serial/serial.h"
 
 
 FASTCALL_ABI EFI_STATUS efiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
@@ -21,6 +22,8 @@ FASTCALL_ABI EFI_STATUS efiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *System
 
 	// disable the watchdog timer so that the application does not reset after 5mins
 	efiBootServices->SetWatchdogTimer(0, 0, 0, NULL);
+
+	pic_serial_Init(&pic_serial_COM1, 115200, 0);
 
 	io_WriteConsole(PROJECT_NAME "\r\n\r\nAWAITING FOR USER INPUT");
 
