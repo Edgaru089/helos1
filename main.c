@@ -53,6 +53,8 @@ FASTCALL_ABI EFI_STATUS efiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *System
 	unifont_DrawString(0, 20, &HelosGraphics_Color_White, helloString, sizeof(helloString) / sizeof(uint32_t));
 	graphics_CursorX = 0;
 	graphics_CursorY = 52;
+	graphics_Invalidate(0, 0, graphics_SystemVideoMode.Width, 52);
+	graphics_SwapBuffer();
 
 	runtime_InitPaging();
 
