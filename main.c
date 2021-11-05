@@ -25,16 +25,7 @@ FASTCALL_ABI EFI_STATUS efiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *System
 
 	pic_serial_Init(&pic_serial_COM1, 115200, 0);
 
-	io_WriteConsole(PROJECT_NAME "\r\n\r\nAWAITING FOR USER INPUT");
-
-	// wait for a user keypress
-	UINTN index;
-	SystemTable->BootServices->WaitForEvent(1, &SystemTable->ConIn->WaitForKey, &index);
-	EFI_INPUT_KEY key;
-	SystemTable->ConIn->ReadKeyStroke(SystemTable->ConIn, &key);
-	io_WriteConsole("...Key Pressed\r\n");
-	io_Printf("Pressed key: %d, %d\r\n", (int)key.ScanCode, (int)key.UnicodeChar);
-
+	io_WriteConsole(" Welcome to " PROJECT_NAME " !\r\n\r\n");
 
 	graphics_Init();
 	io_PauseForKeystroke();
