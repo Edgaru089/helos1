@@ -10,13 +10,6 @@ extern "C" {
 
 
 // defined in paging_init.c
-extern EFI_MEMORY_DESCRIPTOR *efiMemoryMap;
-extern UINTN                  efiMemoryMapSize;
-extern UINTN                  efiMemoryMapKey;
-extern UINTN                  efiDescriptorSize;
-extern UINT32                 efiDescriptorVertion;
-
-// defined in paging_init.c
 extern uint64_t paging_TotalBytes, paging_UsableBytes;
 extern bool     paging_SupportExecuteDisable;
 extern uint64_t paging_EndPhysicalAddress;  // past-the-end marker (and length) for physical memory
@@ -66,37 +59,6 @@ void paging_map_FreeAllocated(uint64_t virt, uint64_t virt_end);
 FASTCALL_ABI void paging_modeswitch_4LevelPaging(void *pml4, int pcid);
 FASTCALL_ABI void paging_modeswitch_4LevelPagingNX(void *pml4, int pcid); // with setting the Execute-Disalbe bit
 FASTCALL_ABI void paging_modeswitch_Table(void *pml, int pcid);
-
-static inline const char *
-	memoryTypeName(EFI_MEMORY_TYPE type) {
-#define CASE(c) \
-	case c:     \
-		return #c;
-	switch (type) {
-		CASE(EfiReservedMemoryType)
-		CASE(EfiLoaderCode)
-		CASE(EfiLoaderData)
-		CASE(EfiBootServicesCode)
-		CASE(EfiBootServicesData)
-		CASE(EfiRuntimeServicesCode)
-		CASE(EfiRuntimeServicesData)
-		CASE(EfiConventionalMemory)
-		CASE(EfiUnusableMemory)
-		CASE(EfiACPIReclaimMemory)
-		CASE(EfiACPIMemoryNVS)
-		CASE(EfiMemoryMappedIO)
-		CASE(EfiMemoryMappedIOPortSpace)
-		CASE(EfiPalCode)
-		case EfiMaxMemoryType:
-			return "EfiPersistentMemory";
-	}
-	return "(unknown)";
-#undef CASE
-}
-
-#ifndef NEXT_MEMORY_DESCRITOR
-#define NEXT_MEMORY_DESCRITOR(desc, size) ((EFI_MEMORY_DESCRIPTOR *)((char *)desc + size)))
-#endif
 
 
 inline static uint64_t roundUpTo2Exponent(uint64_t v) {

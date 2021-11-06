@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../main.h"
-#include "efiprot.h"
 
 #include "color.h"
 #include "xcursor/xcursor.h"
@@ -14,12 +13,16 @@ extern "C" {
 #define HELOS_GRAPHICS_TARGET_MODE_WIDTH  1600
 #define HELOS_GRAPHICS_TARGET_MODE_HEIGHT 900
 
+typedef enum {
+	graphics_PixelFormat_RGBA_8bit,
+	graphics_PixelFormat_BGRA_8bit,
+} graphics_PixelFormat;
 
 typedef struct {
 	int Width, Height;
 	int PixelsPerLine;
 
-	EFI_GRAPHICS_PIXEL_FORMAT PixelFormat;
+	graphics_PixelFormat PixelFormat;
 } HelosGraphics_Mode;
 
 
@@ -48,9 +51,9 @@ void graphics_SetPixel_BGR(int posX, int posY, const HelosGraphics_Color *color)
 
 // graphics_SetPixel calls one of SetPixel_RGB/BGR according to the framebuffer format.
 static inline void graphics_SetPixel(int posX, int posY, const HelosGraphics_Color *color) {
-	if (graphics_SystemVideoMode.PixelFormat == PixelBlueGreenRedReserved8BitPerColor)
+	if (graphics_SystemVideoMode.PixelFormat == graphics_PixelFormat_BGRA_8bit)
 		graphics_SetPixel_BGR(posX, posY, color);
-	else if (graphics_SystemVideoMode.PixelFormat == PixelRedGreenBlueReserved8BitPerColor)
+	else if (graphics_SystemVideoMode.PixelFormat == graphics_PixelFormat_RGBA_8bit)
 		graphics_SetPixel_RGB(posX, posY, color);
 }
 

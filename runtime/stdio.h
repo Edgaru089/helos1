@@ -20,8 +20,6 @@ void io_WriteConsoleASCII(const char *str);
 // io_Printf is a printf() replacement, printing to WriteConsole function.
 int io_Printf(const char *format, ...);
 
-EFI_INPUT_KEY io_PauseForKeystroke();
-
 
 // Debugging printing marcos
 #ifndef NDEBUG

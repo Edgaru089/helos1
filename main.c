@@ -1,5 +1,6 @@
 
 #include "main.h"
+#include "efimain.h"
 
 #include <string.h>
 #include "runtime/panic_assert.h"
@@ -28,7 +29,6 @@ FASTCALL_ABI EFI_STATUS efiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *System
 	io_WriteConsole(" Welcome to " PROJECT_NAME " !\r\n\r\n");
 
 	graphics_Init();
-	io_PauseForKeystroke();
 
 	graphics_ClearBuffer(&HelosGraphics_Color_Black);
 	graphics_FillPixel(0, 0, 20, 20, &HelosGraphics_Color_Black);

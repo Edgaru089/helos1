@@ -1,5 +1,6 @@
 
 #include "../main.h"
+#include "../efimain.h"
 #include "memory.h"
 #include "../runtime/stdio.h"
 #include "../extlib/dlmalloc/malloc-2.8.6.h"

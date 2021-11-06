@@ -2,6 +2,7 @@
 
 #include "../main.h"
 #include <stddef.h>
+#include <stdint.h>
 
 
 #ifdef __cplusplus
@@ -43,9 +44,6 @@ static inline uint64_t paging_MapFunction(void *func) {
 }
 
 
-// efiMallocTyped allocates from EFI_BOOT_SERVICES.AllocatePool.
-void *efiMallocTyped(size_t size, EFI_MEMORY_TYPE type);
-
 // efiMallocTyped allocates from EFI_BOOT_SERVICES.AllocatePool
 // with a memory type of EfiLoaderData.
 void *efiMalloc(size_t size);
@@ -60,12 +58,6 @@ void *kMalloc(size_t size);
 // kFree frees data allocated from kMalloc.
 void kFree(void *data);
 
-
-extern EFI_MEMORY_DESCRIPTOR *efiMemoryMap;
-extern UINTN                  efiMemoryMapSize;
-extern UINTN                  efiMemoryMapKey;
-extern UINTN                  efiDescriptorSize;
-extern UINT32                 efiDescriptorVertion;
 
 // runtime_InitPaging initializes paging and kMalloc/kFree allocator.
 // This function calls ExitBootServices()!!! which is great

@@ -9,6 +9,7 @@
 #include "../runtime/stdio.h"
 #include "../util/minmax.h"
 #include "../util/stack.h"
+#include "../efimain.h"
 #include <efiprot.h>
 
 #include <assert.h>

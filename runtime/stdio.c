@@ -6,6 +6,7 @@
 #include "../graphics/graphics.h"
 #include "../driver/irq/pic/serial/serial.h"
 
+#include "../efimain.h"
 #include <string.h>
 #include <stdarg.h>
 
@@ -99,17 +100,4 @@ int io_Printf(const char *fmt, ...) {
 	io_WriteConsole(__io_Printf_buffer);
 
 	return ret;
-}
-
-EFI_INPUT_KEY io_PauseForKeystroke() {
-#ifdef HELOS_RUNTIME_QUIET
-	EFI_INPUT_KEY k = {0, 0};
-	return k;
-#else
-	UINTN         index;
-	EFI_INPUT_KEY key;
-	efiBootServices->WaitForEvent(1, &efiStdin->WaitForKey, &index);
-	efiSystemTable->ConIn->ReadKeyStroke(efiSystemTable->ConIn, &key);
-	return key;
-#endif
 }

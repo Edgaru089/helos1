@@ -1,14 +1,7 @@
 #pragma once
 
-#include "stddef.h"
-
-#ifdef __cplusplus
-extern "C" {
-#include <efi.h>
-}
-#else
-#include <efi.h>
-#endif
+#include <stddef.h>
+#include <stdint.h>
 
 #define PROJECT_NAME      "Helos1"
 #define PROJECT_NAME_LONG L"Helos1"
@@ -33,15 +26,8 @@ extern "C" {
 				 : "=r"(var))
 
 
-extern EFI_HANDLE         efiImageHandle;
-extern EFI_SYSTEM_TABLE * efiSystemTable;
-extern EFI_BOOT_SERVICES *efiBootServices;
-
-extern SIMPLE_TEXT_OUTPUT_INTERFACE *efiStdout, *efiStderr;
-extern SIMPLE_INPUT_INTERFACE *      efiStdin;
-
 #define HELOS_BUFFER_SIZE 16384
-extern char Buffer[HELOS_BUFFER_SIZE] ALIGN(4096); // general-purpose buffer, user saved (volatile), not used in interrupt handlers
+extern char Buffer[HELOS_BUFFER_SIZE] ALIGNED(4096); // general-purpose buffer, user saved (volatile), not used in interrupt handlers
 
 
 extern const char link_TextStart[], link_TextEnd[];

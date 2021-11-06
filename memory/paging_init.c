@@ -1,5 +1,6 @@
 
 #include "../main.h"
+#include "../efimain.h"
 #include "memory.h"
 #include "../runtime/panic_assert.h"
 #include "../runtime/stdio.h"
@@ -13,6 +14,7 @@ void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
 #include <string.h>
 
 #include "paging_internal.h"
+#include "paging_internal_efi.h"
 
 
 EFI_MEMORY_DESCRIPTOR *efiMemoryMap;
@@ -111,7 +113,6 @@ void runtime_InitPaging() {
 		paging_UsableBytes / 1024.0 / 1024.0,
 		paging_UsableBytes / 1024.0 / 1024.0 / 1024.0);
 
-	io_PauseForKeystroke();
 
 	assert(paging_LoaderCodeAddress && "EfiLoaderCode mapping not found");
 
