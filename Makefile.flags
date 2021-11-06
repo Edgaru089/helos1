@@ -2,10 +2,6 @@
 .SILENT:
 
 
-# HELOS_RUNTIME_QUIET   Supress on-screen kernel output (not supressing serial output)
-export BUILD_OPTIONS = -DHELOS_RUNTIME_QUIET
-
-
 FLAGS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 SELF_DIR   = $(dir $@)
 
