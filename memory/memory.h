@@ -52,11 +52,27 @@ void *efiMalloc(size_t size);
 void efiFree(void *data);
 
 
+#ifdef HELOS
 // kMalloc allocates from system memory directly after paging has been set up
 void *kMalloc(size_t size);
 
 // kFree frees data allocated from kMalloc.
 void kFree(void *data);
+
+#else
+// use stdc malloc/free in testing
+#include <malloc.h>
+#include <stdio.h>
+static inline void *kMalloc(size_t size) {
+	void *mem = malloc(size);
+	printf("kMalloc: size=%llu, pos=0x%llx\n", size, mem);
+	return mem;
+}
+static inline void kFree(void *data) {
+	printf("kFree: 0x%llx\n", data);
+	free(data);
+}
+#endif
 
 
 // runtime_InitPaging initializes paging and kMalloc/kFree allocator.
