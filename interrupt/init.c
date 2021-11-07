@@ -93,10 +93,9 @@ void interrupt_Init() {
 	interrupt_LoadIDT(KERNEL_IDT_SIZE - 1, (void *)KERNEL_IDT_MAPPING); // set it!
 	io_WriteConsoleASCII("IDT OK\n");
 
+	interrupt_ReloadSegments();
+	io_WriteConsoleASCII("Segment Registers Reloaded\n");
 
 	interrupt_Enabled = true;
 	asm volatile("sti");
-
-	interrupt_ReloadSegments();
-	io_WriteConsoleASCII("Segment Registers Reloaded\n");
 }
