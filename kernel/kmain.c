@@ -35,6 +35,14 @@ static inline int minmax(int val, int min, int max) {
 	return val;
 }
 
+static SYSV_ABI void kThreader(int a, int b, int c, int d, int e, int f) {
+	io_Printf("kThreader: args[%d,%d,%d,%d,%d,%d]\n", a, b, c, d, e, f);
+	for (;;) {
+		smp_thread_Sleep(768);
+		io_Printf("kThreader: Not sleeping!\n");
+	}
+}
+
 
 SYSV_ABI void kMain() {
 	io_WriteConsoleASCII("Yes! kMain survived!\n");
@@ -73,7 +81,12 @@ SYSV_ABI void kMain() {
 
 	io_WriteConsoleASCII("kMain: Initializing threading\n");
 	smp_thread_ID tid = smp_thread_Init();
-	io_WriteConsoleASCII("kMain: Threading OK\n");
+	io_Printf("kMain: Threading OK, id=%d\n", tid);
+
+	smp_thread_Arguments args = {1, 2, 3, 4, 5, 6};
+
+	tid = smp_thread_Start(kThreader, &args, SMP_NICENESS_DEFAULT);
+	io_Printf("New thread, id=%d\n", tid);
 
 	for (;;) {
 		//asm volatile("hlt");
