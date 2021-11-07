@@ -10,6 +10,7 @@
 
 
 irq_pic_IRQHandlerType irq_pic_IRQHandler[16];
+void *                 irq_pic_IRQHandlerRaw[16];
 bool                   irq_pic_Enabled;
 
 void irq_pic_Init() {
@@ -34,6 +35,7 @@ void irq_pic_Init() {
 	outb_wait(PIC2_DATA, 0xff);
 
 	memset(irq_pic_IRQHandler, 0, sizeof(irq_pic_IRQHandler)); // reset all IRQ handlers
+	memset(irq_pic_IRQHandlerRaw, 0, sizeof(irq_pic_IRQHandlerRaw));
 
 	// map the IRQ handlers
 	interrupt_MapHandler(irq_pic_IntHandler20h, 0x20);

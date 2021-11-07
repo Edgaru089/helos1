@@ -1,6 +1,9 @@
 format elf64
 
+include 'pic_constants.incS'
+
 extrn irq_pic_IntHandler
+extrn irq_pic_IRQHandlerRaw
 
 public irq_pic_IntHandler20h
 public irq_pic_IntHandler21h
@@ -23,9 +26,25 @@ public irq_pic_IntHandler2fh
 section '.text' executable
 
 macro inth op1 {
+	push rax
+
+	mov  rax, [irq_pic_IRQHandlerRaw+op1*8]
+	test rax, rax
+	jz .noraw
+
+	; has raw handler
+	mov al, PIC_CMD_EOI
+	if op1 >= 8
+		out PIC2_COMMAND, al
+	end if
+	out PIC1_COMMAND, al
+
+	pop rax
+	jmp qword [irq_pic_IRQHandlerRaw+op1*8]
+
+.noraw:
 	push rdi
 	mov rdi, op1
-	push rax
 	push rsi
 	push rdx
 	push rcx
@@ -41,8 +60,8 @@ macro inth op1 {
 	pop rcx
 	pop rdx
 	pop rsi
-	pop rax
 	pop rdi
+	pop rax
 	iretq
 }
 

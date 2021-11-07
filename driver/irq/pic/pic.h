@@ -36,6 +36,11 @@ typedef SYSV_ABI void (*irq_pic_IRQHandlerType)();
 extern irq_pic_IRQHandlerType irq_pic_IRQHandler[16];
 extern bool                   irq_pic_Enabled;
 
+// If IRQHandlerRaw[irq] is not NULL, the function is jumped to (not called).
+//
+// So the handler should use IRET instead of RET, and save all the registers it uses.
+extern void *irq_pic_IRQHandlerRaw[16];
+
 
 #ifdef __cplusplus
 }
