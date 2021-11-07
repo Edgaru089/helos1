@@ -5,6 +5,7 @@
 #include "../memory/memory.h"
 #include "../graphics/graphics.h"
 #include "../driver/irq/pic/serial/serial.h"
+#include "../interrupt/interrupt.h"
 
 #include "../efimain.h"
 #include <string.h>
@@ -92,6 +93,7 @@ void io_WriteConsoleASCII(const char *str) {
 char __io_Printf_buffer[4096];
 
 int io_Printf(const char *fmt, ...) {
+	INTERRUPT_DISABLE;
 	va_list args;
 	va_start(args, fmt);
 	int ret = vsnprintf(__io_Printf_buffer, sizeof(__io_Printf_buffer), fmt, args);
@@ -99,5 +101,6 @@ int io_Printf(const char *fmt, ...) {
 
 	io_WriteConsole(__io_Printf_buffer);
 
+	INTERRUPT_RESTORE;
 	return ret;
 }
