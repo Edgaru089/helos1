@@ -132,13 +132,17 @@ void tree_Delete(tree_Tree *t, tree_Node *node) {
 
 tree_Node *tree_FirstNode(tree_Tree *tree) {
 	tree_Node *result = tree->root;
-	while (result->left)
+	if (!result)
+		return 0;
+	while (result->right)
 		result = result->left;
 	return result;
 }
 
 tree_Node *tree_LastNode(tree_Tree *tree) {
 	tree_Node *result = tree->root;
+	if (!result)
+		return 0;
 	while (result->right)
 		result = result->right;
 	return result;
