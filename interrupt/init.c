@@ -6,8 +6,7 @@
 #include "../runtime/panic_assert.h"
 #include "testcode.h"
 
-interrupt_DescriptorTableReference *interrupt_IDTR, *interrupt_GDTR;
-bool                                interrupt_Enabled;
+bool interrupt_Enabled;
 
 
 /*

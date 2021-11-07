@@ -33,8 +33,7 @@ typedef struct {
 	uint16_t length;
 	void *   base;
 } PACKED interrupt_DescriptorTableReference;
-// address of IDTR and GDTR, allocated by kMalloc() and is never freed
-extern interrupt_DescriptorTableReference *interrupt_IDTR, *interrupt_GDTR;
+
 
 // true if Init() has been called and interrupt handling is on
 extern bool interrupt_Enabled;
