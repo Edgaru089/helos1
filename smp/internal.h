@@ -35,6 +35,9 @@ extern bool __smp_PauseTicker;
 // __smp_Thread*[], current thread for each core
 extern __smp_Thread **__smp_Current;
 
+// largest thread ID
+extern smp_thread_ID __smp_Idallo;
+
 /* Priority = lastTick + nice
  * So the average value is in fact constantly growing */
 
