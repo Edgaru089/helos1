@@ -27,12 +27,10 @@ void efiFree(void *data) {
 
 void *kMalloc(size_t size) {
 	void *mem = dlmalloc(size);
-	io_Printf("kMalloc: size=%llu, pos=0x%llx\n", size, mem);
 	return mem;
 }
 
 void kFree(void *data) {
-	io_Printf("kFree: 0x%llx\n", data);
 	dlfree(data);
 }
 
