@@ -11,6 +11,7 @@
 #include "../interrupt/syscall.h"
 #include "../driver/irq/pic/pic.h"
 #include "../driver/irq/pic/ps2/ps2.h"
+#include "../smp/kthread.h"
 
 #include "../execformat/pe/reloc.h"
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
@@ -70,8 +71,12 @@ SYSV_ABI void kMain() {
 	} else
 		io_WriteConsoleASCII("xcursor_Default: failed to load\n");
 
+	io_WriteConsoleASCII("kMain: Initializing threading\n");
+	smp_thread_ID tid = smp_thread_Init();
+	io_WriteConsoleASCII("kMain: Threading OK\n");
+
 	for (;;) {
-		asm volatile("hlt");
+		//asm volatile("hlt");
 
 		//io_WriteConsoleASCII("kMain: Interrupt hit\n");
 		graphics_SwapBuffer();
