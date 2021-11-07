@@ -134,7 +134,7 @@ tree_Node *tree_FirstNode(tree_Tree *tree) {
 	tree_Node *result = tree->root;
 	if (!result)
 		return 0;
-	while (result->right)
+	while (result->left)
 		result = result->left;
 	return result;
 }
