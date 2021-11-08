@@ -27,14 +27,6 @@ static void printTree(tree_Node *root, int level, __tree_ConnectType type) {
 SYSV_ABI uintptr_t __smp_Switch() {
 	// the calling function smp_IntSwitch already CLI-ed for us
 
-	// TODO ticker and switch should be 2 functions!
-	if (!__smp_PauseTicker) {
-		__smp_Now++;
-		if (__smp_Now % 8)
-			return 0;
-	} else
-		__smp_PauseTicker = false;
-
 	//io_Printf("__smp_Switch: Tick: %d, switching\n", __smp_Now);
 
 	__smp_Thread *t = __smp_Current[0];

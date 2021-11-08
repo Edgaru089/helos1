@@ -1,6 +1,8 @@
 format elf64
 
 extrn  __smp_Switch
+extrn  __smp_PauseTicker
+extrn  __smp_Now
 public __smp_IntSwitch_LastState
 public __smp_IntSwitch
 public __smp_Switch_Idle
@@ -33,6 +35,29 @@ __smp_IntSwitch:
 	cli
 
 	mov [__smp_IntSwitch_LastState],    rax
+
+	; if (!__smp_PauseTicker) {
+	;     __smp_Now++;
+	;     if (__smp_Now % 8)
+	;         return 0;
+	; } else
+	;     __smp_PauseTicker = false;
+	mov  al, [__smp_PauseTicker]
+	test al, al
+	jnz  .noticker
+	
+	mov  rax, [__smp_Now]
+	inc  rax
+	mov  [__smp_Now], rax
+	test rax, 0x7
+	jz   .realcall
+	mov  rax, [__smp_IntSwitch_LastState]
+	iret
+
+.noticker:
+	mov byte [__smp_PauseTicker], 0
+
+.realcall:
 	mov [__smp_IntSwitch_LastState+8],  rbx
 	mov [__smp_IntSwitch_LastState+16], rcx
 	mov [__smp_IntSwitch_LastState+24], rdx
