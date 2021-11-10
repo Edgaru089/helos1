@@ -22,6 +22,8 @@ smp_thread_ID smp_thread_Init() {
 	t->nice            = SMP_NICENESS_DEFAULT;
 	t->id              = id;
 	t->lastTick        = 1;
+	t->sleepUntil      = 0;
+	t->waitCondition   = NULL;
 	__smp_Count        = 1;
 
 	__smp_Current    = kMalloc(sizeof(void *) * __smp_Count);
@@ -44,6 +46,8 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 	t->nice            = nice;
 	t->id              = id;
 	t->lastTick        = __smp_Now;
+	t->sleepUntil      = 0;
+	t->waitCondition   = NULL;
 
 	t->state.cs  = GDT_EXEC_SELECTOR;
 	t->state.ss  = 0;
@@ -87,7 +91,7 @@ int smp_thread_Nice(smp_thread_ID id, int newnice) {
 
 void smp_thread_Sleep(int ticks) {
 	INTERRUPT_DISABLE;
-	__smp_Current[0]->lastTick = __smp_Now + ticks;
+	__smp_Current[0]->sleepUntil = __smp_Now + ticks;
 	INTERRUPT_RESTORE;
 	smp_thread_Yield();
 }

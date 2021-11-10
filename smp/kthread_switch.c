@@ -31,32 +31,24 @@ SYSV_ABI uintptr_t __smp_Switch() {
 
 	__smp_Thread *t = __smp_Current[0];
 
-	tree_Node *node = 0;
+	uint64_t priority = UINT64_MAX;
 	// insert the current thread back into the waiting queue
 	if (t) {
-		uint64_t priority = t->nice + (t->lastTick > __smp_Now ? t->lastTick : __smp_Now); // new priority for the thread
-		bool     ok       = false;
-		do {
-			node = tree_InsertNode(__smp_ThreadsWaiting, priority, &ok);
-			priority++;
-		} while (!ok);
-		NODE_POINTER(node) = t;
+		priority = t->nice + (t->lastTick > __smp_Now ? t->lastTick : __smp_Now); // new priority for the thread
 	}
 	//printTree(__smp_Threads->root, 0, 0);
 	//printTree(__smp_ThreadsWaiting->root, 0, 0);
 	tree_Node *first = tree_FirstNode(__smp_ThreadsWaiting);
 
 	//io_Printf("    first0.id=%d\n", NODE_POINTER(first) ? NODE_POINTER(first)->id : 0);
-	while (first && NODE_POINTER(first)->lastTick > __smp_Now) {
+	while (first && (NODE_POINTER(first)->sleepUntil > __smp_Now || NODE_POINTER(first)->waitCondition != NULL)) {
 		//io_Printf("      iterating, .id=%d\n", NODE_POINTER(first) ? NODE_POINTER(first)->id : 0);
 		first = tree_Node_Next(first);
 	}
 
-	if (first == node) {
+	if ((t->sleepUntil <= __smp_Now && t->waitCondition == NULL) && first->key > priority) {
 		// the current thread is still the first, return
 		//io_Printf("    Not context switching, still running %d\n", t ? t->id : 0);
-		if (node)
-			tree_Delete(__smp_ThreadsWaiting, node);
 		return 0;
 	}
 
@@ -64,6 +56,13 @@ SYSV_ABI uintptr_t __smp_Switch() {
 	// first save the current thread context
 	t->lastTick = __smp_Now;
 	memcpy(&t->state, &__smp_IntSwitch_LastState, sizeof(smp_thread_State));
+	tree_Node *node = 0;
+	bool       ok   = false;
+	do {
+		node = tree_InsertNode(__smp_ThreadsWaiting, priority, &ok);
+		priority++;
+	} while (!ok);
+	NODE_POINTER(node) = t;
 
 	if (!first) {
 		// no thread available, load a dummy idle thread

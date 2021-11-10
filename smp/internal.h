@@ -2,6 +2,7 @@
 
 #include "kthread.h"
 #include "kthread_switch.h"
+#include "condiction.h"
 #include "../util/tree.h"
 
 
@@ -14,8 +15,9 @@ typedef struct {
 	unsigned int nice;
 
 	// Last tick at which the thread started waiting
-	// More than Now means the thread is actively sleeping and is not to be resumed.
-	uint64_t lastTick;
+	uint64_t       lastTick;
+	uint64_t       sleepUntil;
+	smp_Condition *waitCondition;
 
 	// Last-saved thread state after preemptive context switch
 	smp_thread_State state;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../main.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -37,7 +38,7 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 int smp_thread_Nice(smp_thread_ID id, int newnice);
 
 // Yield pauses the execution of the current thread, possibly switching to another.
-void smp_thread_Yield();
+SYSV_ABI void smp_thread_Yield();
 
 // Sleep sleeps for a given amount of ticks (1024Hz)
 void smp_thread_Sleep(int ticks);
