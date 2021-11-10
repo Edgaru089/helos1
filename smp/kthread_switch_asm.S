@@ -62,7 +62,7 @@ __smp_IntSwitch:
 	mov  rax, [__smp_Now]
 	inc  rax
 	mov  [__smp_Now], rax
-	test rax, 0x7
+	test rax, 0x3
 	jz   .realcall
 	mov  rax, [__smp_IntSwitch_LastState]
 	iret
