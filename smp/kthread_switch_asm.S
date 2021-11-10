@@ -6,6 +6,7 @@ extrn  __smp_Now
 public __smp_IntSwitch_LastState
 public __smp_IntSwitch
 public __smp_Switch_Idle
+public smp_thread_Yield
 
 
 section '.bss' writable
@@ -26,6 +27,18 @@ __smp_IntSwitch_LastState:
 
 
 section '.text' executable
+
+; sysvx64abi smp_thread_Yield()
+;
+; Sets __smp_PauseTicker.
+; Pushes SS, RSP, RFLAGS, CS, RIP into the stack as Qwords,
+; like what the CPU does on execption,
+; and jumps to __smp_IntSwitch.
+smp_thread_Yield:
+	mov byte [__smp_PauseTicker], 1
+	int 0x28
+	ret
+
 
 ; interrupt_handler smp_IntSwitch()
 ;

@@ -85,11 +85,6 @@ int smp_thread_Nice(smp_thread_ID id, int newnice) {
 	return oldnice;
 }
 
-void smp_thread_Yield() {
-	__smp_PauseTicker = true;
-	asm volatile("int $0x28"); // TODO This is just quick and dirty to get into the scheduler
-}
-
 void smp_thread_Sleep(int ticks) {
 	INTERRUPT_DISABLE;
 	__smp_Current[0]->lastTick = __smp_Now + ticks;
