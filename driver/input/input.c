@@ -1,14 +1,15 @@
 
 #include "input.h"
+#include "consts.h"
 #include "source.h"
 #include "internal.h"
 #include "../../util/minmax.h"
-#include <stdint.h>
 
 
-int      __input_CursorX, __input_CursorY;
-int      __input_DesktopWidth, __input_DesktopHeight;
-uint64_t __input_KeyMask[input_Key_Count / 64 + 1], __input_MouseMask[input_MouseButton_Count / 64 + 1];
+smp_Condition *input_Condition;
+int            __input_CursorX, __input_CursorY;
+int            __input_DesktopWidth, __input_DesktopHeight;
+uint64_t       __input_KeyMask[input_Key_Count / 64 + 1], __input_MouseMask[input_MouseButton_Count / 64 + 1];
 // FIXME you're supposed to disable interrupt/lock mutex accessing these variables
 
 
@@ -30,19 +31,38 @@ void input_DesktopSize(int *x, int *y) {
 	*y = __input_DesktopHeight;
 }
 
-void input_source_PressKey(input_Key key) { __input_KeyMask[key / 64] |= (1ull << key % 64); }
-void input_source_ReleaseKey(input_Key key) { __input_KeyMask[key / 64] &= ~(1ull << key % 64); }
+static inline void notify(void *data) {
+	if (input_Condition)
+		smp_Condition_NotifyAll(input_Condition, data);
+}
 
-void input_source_PressMouse(input_MouseButton key) { __input_MouseMask[key / 64] |= (1ull << key & 64); }
-void input_source_ReleaseMouse(input_MouseButton key) { __input_MouseMask[key / 64] &= ~(1ull << key & 64); }
+void input_source_PressKey(input_Key key) {
+	__input_KeyMask[key / 64] |= (1ull << key % 64);
+	notify(NULL);
+}
+void input_source_ReleaseKey(input_Key key) {
+	__input_KeyMask[key / 64] &= ~(1ull << key % 64);
+	notify(NULL);
+}
+
+void input_source_PressMouse(input_MouseButton key) {
+	__input_MouseMask[key / 64] |= (1ull << key & 64);
+	notify(NULL);
+}
+void input_source_ReleaseMouse(input_MouseButton key) {
+	__input_MouseMask[key / 64] &= ~(1ull << key & 64);
+	notify(NULL);
+}
 
 void input_source_MoveMouse(int x, int y) {
 	__input_CursorX = intminmax(__input_CursorX + x, 0, __input_DesktopWidth);
 	__input_CursorY = intminmax(__input_CursorY + y, 0, __input_DesktopHeight);
+	notify(NULL);
 }
 void input_source_PositionMouse(int x, int y) {
 	__input_CursorX = intminmax(x, 0, __input_DesktopWidth);
 	__input_CursorY = intminmax(y, 0, __input_DesktopHeight);
+	notify(NULL);
 }
 
 void input_source_SetDesktopSize(int x, int y) {

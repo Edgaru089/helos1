@@ -11,7 +11,9 @@
 #include "../interrupt/syscall.h"
 #include "../driver/irq/pic/pic.h"
 #include "../driver/irq/pic/ps2/ps2.h"
+#include "../driver/input/input.h"
 #include "../smp/kthread.h"
+#include "../smp/condiction.h"
 
 #include "../execformat/pe/reloc.h"
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
@@ -88,10 +90,10 @@ SYSV_ABI void kMain() {
 	tid = smp_thread_Start(kThreader, &args, SMP_NICENESS_DEFAULT);
 	io_Printf("New thread, id=%d\n", tid);
 
-	for (;;) {
-		//asm volatile("hlt");
+	input_Condition = smp_Condition_Create();
 
-		//io_WriteConsoleASCII("kMain: Interrupt hit\n");
+	for (;;) {
+		smp_Condition_Wait(input_Condition);
 		graphics_SwapBuffer();
 	}
 }

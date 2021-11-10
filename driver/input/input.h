@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../smp/condiction.h"
 #include <stdbool.h>
 #include "consts.h"
 
@@ -7,6 +8,9 @@
 extern "C" {
 #endif
 
+
+// If input_Condition is not NULL, it is notified on new input events.
+extern smp_Condition *input_Condition;
 
 // input_KeyPressed tells if a given key is present and pressed.
 bool input_KeyPressed(input_Key key);
