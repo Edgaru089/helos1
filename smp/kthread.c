@@ -21,6 +21,9 @@ SYSV_ABI NORETURN void __smp_thread_Cleanup() {
 	tree_Delete(__smp_Threads, tree_FindNode(__smp_Threads, t->id));
 	__smp_Current[0] = 0;
 
+	// Push the freed stack frame into the pool
+	tree_Insert(__smp_StackPool, t->stackframe, NULL);
+
 	// Now that we're pretending to be a idle thread, this should not return
 	// thread_Switch() sets the interrupt flag on idle for us
 	smp_thread_Yield();
@@ -32,6 +35,7 @@ smp_thread_ID smp_thread_Init() {
 	INTERRUPT_DISABLE;
 	__smp_Threads        = tree_Create(sizeof(__smp_Thread));
 	__smp_ThreadsWaiting = tree_Create(sizeof(void *));
+	__smp_StackPool      = tree_Create(0);
 	__smp_Now            = 1;
 
 	smp_thread_ID id   = ++__smp_Idallo;
@@ -79,10 +83,17 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 	t->state.r8  = args->e;
 	t->state.r9  = args->f;
 
-	// allocate a new 4K stack
-	uint64_t newstack = memory_AllocateKernelMapping(4096, 4096);
-	paging_map_PageAllocated(newstack, 1, MAP_PROT_READ | MAP_PROT_WRITE);
-	t->state.rsp = newstack + 4096;
+	tree_Node *spare = tree_FirstNode(__smp_StackPool);
+	if (spare) {
+		// use the existing stack from the pool
+		t->state.rsp = t->stackframe = spare->key + 4096;
+		tree_Delete(__smp_StackPool, spare);
+	} else {
+		// allocate a new 4K stack
+		uint64_t newstack = memory_AllocateKernelMapping(4096, 4096);
+		paging_map_PageAllocated(newstack, 1, MAP_PROT_READ | MAP_PROT_WRITE);
+		t->state.rsp = t->stackframe = newstack + 4096;
+	}
 
 	// insert the thread into the waiting queue
 	*((void **)tree_Insert(__smp_ThreadsWaiting, t->lastTick + t->nice, 0)) = t;

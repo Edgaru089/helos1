@@ -12,3 +12,4 @@ smp_thread_ID __smp_Idallo;
 
 tree_Tree *__smp_Threads;
 tree_Tree *__smp_ThreadsWaiting;
+tree_Tree *__smp_StackPool;

@@ -22,6 +22,7 @@ typedef struct {
 
 	// Last-saved thread state after preemptive context switch
 	smp_thread_State state;
+	uint64_t         stackframe; // stack frame, lowest (begin) addr
 } __smp_Thread;
 
 // variables defined in internal.c
@@ -48,3 +49,6 @@ extern smp_thread_ID __smp_Idallo;
 extern tree_Tree *__smp_Threads;
 // [priority] -> struct __smp_Thread*
 extern tree_Tree *__smp_ThreadsWaiting;
+
+// unused thread stack pages for use; 4K in size
+extern tree_Tree *__smp_StackPool;
