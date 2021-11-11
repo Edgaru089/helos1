@@ -39,10 +39,11 @@ static inline int minmax(int val, int min, int max) {
 
 static SYSV_ABI void kThreader(int a, int b, int c, int d, int e, int f) {
 	io_Printf("kThreader: args[%d,%d,%d,%d,%d,%d]\n", a, b, c, d, e, f);
-	for (;;) {
-		smp_thread_Sleep(768);
+	for (int i = 0; i < 10; i++) {
 		io_Printf("kThreader: Not sleeping!\n");
+		smp_thread_Sleep(768);
 	}
+	io_Printf("kThreader: byebye!\n");
 }
 
 

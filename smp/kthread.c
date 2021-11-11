@@ -3,11 +3,29 @@
 #include "kthread_switch.h"
 #include "internal.h"
 
+#include "../runtime/panic_assert.h"
 #include "../util/tree.h"
 #include "../interrupt/interrupt.h"
 #include "../driver/irq/pic/rtc/rtc.h"
 #include "../memory/memory.h"
 #include "../memory/paging_internal.h"
+
+
+// defined in assembly
+SYSV_ABI void __smp_thread_EntryPoint();
+
+// for __smp_thread_EntryPoint cleanups
+// assumes interrupt is disabled
+SYSV_ABI NORETURN void __smp_thread_Cleanup() {
+	__smp_Thread *t = __smp_Current[0];
+	tree_Delete(__smp_Threads, tree_FindNode(__smp_Threads, t->id));
+	__smp_Current[0] = 0;
+
+	// Now that we're pretending to be a idle thread, this should not return
+	// thread_Switch() sets the interrupt flag on idle for us
+	smp_thread_Yield();
+	Panic("__smp_thread_Cleanup: Yield not switching to another thread");
+}
 
 
 smp_thread_ID smp_thread_Init() {
@@ -51,8 +69,9 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 
 	t->state.cs  = GDT_EXEC_SELECTOR;
 	t->state.ss  = 0;
-	t->state.rip = (uint64_t)entry;
+	t->state.rip = (uint64_t)__smp_thread_EntryPoint;
 
+	t->state.rax = (uint64_t)entry;
 	t->state.rdi = args->a;
 	t->state.rsi = args->b;
 	t->state.rdx = args->c;
