@@ -18,6 +18,7 @@ typedef struct {
 	uint64_t       lastTick;
 	uint64_t       sleepUntil;
 	smp_Condition *waitCondition;
+	void *         waitData;
 
 	// Last-saved thread state after preemptive context switch
 	smp_thread_State state;
