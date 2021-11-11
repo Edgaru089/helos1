@@ -20,6 +20,11 @@ void io_WriteConsoleASCII(const char *str);
 // io_Printf is a printf() replacement, printing to WriteConsole function.
 int io_Printf(const char *format, ...);
 
+// io_Error prints error information directly to the screen.
+void io_Error(const char *str);
+void io_ErrorASCII(const char *str);
+int  io_Errorf(const char *format, ...);
+
 
 // Debugging printing marcos
 #ifndef NDEBUG

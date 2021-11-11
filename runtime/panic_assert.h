@@ -27,17 +27,19 @@ noreturn void __Panic_HaltSystem();
 
 // Panic() aborts the system after printing the message and some other information.
 noreturn inline static void Panic(const char *message) {
-	io_Printf("Panic: %s\n", message);
+	asm volatile("cli");
+	io_Errorf("Panic: %s\n", message);
 	__Panic_HaltSystem();
 }
 
 // Panicf() aborts the system after printing the message using vsnprintf.
 noreturn inline static void Panicf(const char *fmt, ...) {
+	asm volatile("cli");
 	va_list args;
 	va_start(args, fmt);
 	int ret = vsnprintf(Buffer, HELOS_BUFFER_SIZE, fmt, args);
 	va_end(args);
-	io_Printf("Panic: %s\n", Buffer);
+	io_Errorf("Panic: %s\n", Buffer);
 	__Panic_HaltSystem();
 }
 

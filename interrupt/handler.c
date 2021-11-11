@@ -59,12 +59,16 @@ const char *interrupt_Descriptions[] = {
  */
 
 SYSV_ABI void interrupt_Handler(int vec, int errcode, uint64_t rip, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi, uint64_t rbp, uint64_t rsp, uint64_t r8, uint64_t r9, uint64_t r10, uint64_t r11, uint64_t r12, uint64_t r13, uint64_t r14, uint64_t r15) {
-	io_Printf("Panic: INT %02xh: %s, err=%d(0x%02x), rip=%llx\n"
+	asm volatile("cli");
+	uint64_t cr2;
+	asm volatile("mov %%cr2, %0"
+				 : "=r"(cr2));
+	io_Errorf("Panic: INT %02xh: %s, err=%d(0x%02x), RIP=%llx, CR2=%llx\n"
 			  "    RAX=%016llX, RBX=%016llX, RCX=%016llX, RDX=%016llX\n"
 			  "    RSI=%016llX, RDI=%016llX, RBP=%016llX, RSP=%016llX\n"
 			  "     R8=%016llX,  R9=%016llX, R10=%016llX, R11=%016llX\n"
 			  "    R12=%016llX, R13=%016llX, R14=%016llX, R15=%016llX",
-			  vec, interrupt_Descriptions[vec], errcode, errcode, rip, rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8, r9, r10, r11, r12, r13, r14, r15);
+			  vec, interrupt_Descriptions[vec], errcode, errcode, rip, cr2, rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8, r9, r10, r11, r12, r13, r14, r15);
 	__Panic_HaltSystem();
 }
 

@@ -46,10 +46,7 @@ void __io_WriteConsole_ResizeBuffer(int size) {
 	}
 }
 
-void io_WriteConsole(const char *str) {
-	pic_serial_Write(&pic_serial_COM1, str, 0);
-
-#ifndef HELOS_RUNTIME_QUIET
+static inline void __io_WriteConsoleUTF8(const char *str) {
 	int size = 0;           // don't include the \0 at the end here
 	int len  = strlen(str); // left the \0 out here too
 
@@ -71,13 +68,9 @@ void io_WriteConsole(const char *str) {
 	} else {
 		console_WriteUTF16(&HelosGraphics_Color_White, __io_WriteConsole_buffer, 0);
 	}
-#endif
 }
 
-void io_WriteConsoleASCII(const char *str) {
-	pic_serial_Write(&pic_serial_COM1, str, 0);
-
-#ifndef HELOS_RUNTIME_QUIET
+static inline void __io_WriteConsoleASCII(const char *str) {
 	if (!graphics_Framebuffer) {
 		int len = strlen(str);
 		__io_WriteConsole_ResizeBuffer(len + 1);
@@ -87,6 +80,19 @@ void io_WriteConsoleASCII(const char *str) {
 	} else {
 		console_WriteASCII(&HelosGraphics_Color_White, str, 0);
 	}
+}
+
+void io_WriteConsole(const char *str) {
+	pic_serial_Write(&pic_serial_COM1, str, 0);
+#ifndef HELOS_RUNTIME_QUIET
+	__io_WriteConsoleUTF8(str);
+#endif
+}
+
+void io_WriteConsoleASCII(const char *str) {
+	pic_serial_Write(&pic_serial_COM1, str, 0);
+#ifndef HELOS_RUNTIME_QUIET
+	__io_WriteConsoleASCII(str);
 #endif
 }
 
@@ -100,6 +106,29 @@ int io_Printf(const char *fmt, ...) {
 	va_end(args);
 
 	io_WriteConsole(__io_Printf_buffer);
+
+	INTERRUPT_RESTORE;
+	return ret;
+}
+
+void io_Error(const char *str) {
+	pic_serial_Write(&pic_serial_COM1, str, 0);
+	__io_WriteConsoleUTF8(str);
+}
+
+void io_ErrorASCII(const char *str) {
+	pic_serial_Write(&pic_serial_COM1, str, 0);
+	__io_WriteConsoleASCII(str);
+}
+
+int io_Errorf(const char *fmt, ...) {
+	INTERRUPT_DISABLE;
+	va_list args;
+	va_start(args, fmt);
+	int ret = vsnprintf(__io_Printf_buffer, sizeof(__io_Printf_buffer), fmt, args);
+	va_end(args);
+
+	io_Error(__io_Printf_buffer);
 
 	INTERRUPT_RESTORE;
 	return ret;
