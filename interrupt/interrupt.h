@@ -8,16 +8,16 @@ extern "C" {
 #endif
 
 
-#define GDT_SIZE_BYTES 4
+#define GDT_SIZE_BYTES 8
 #define GDT_EXEC       0x00AF9A000000FFFFull // Base=0, Limit=max, Access=Present|Ring0|TypeUser|Exec|Readable, Flag=GranularityPage|Long
 #define GDT_DATA       0x00EF92000000FFFFull // Base=0, Limit=max, Access=Present|Ring0|TypeUser|Writable, Flag=GranularityPage|Size
 #define GDT_EXEC_RING3 0x00AFFA000000FFFFull // Base=0, Limit=max, Access=Present|Ring3|TypeUser|Exec|Readable, Flag=GranularityPage|Long
 #define GDT_DATA_RING3 0x00EFF2000000FFFFull // Base=0, Limit=max, Access=Present|Ring3|TypeUser|Writable, Flag=GranularityPage|Size
 
-#define GDT_EXEC_SELECTOR       0x08 // SelectorIndex=1, TableIndicator=GDT(0), Privilege=Ring0
-#define GDT_DATA_SELECTOR       0x10 // SelectorIndex=2, TableIndicator=GDT(0), Privilege=Ring0
-#define GDT_EXEC_RING3_SELECTOR 0x1B // SelectorIndex=3, TableIndicator=GDT(0), Privilege=Ring3
-#define GDT_DATA_RING3_SELECTOR 0x23 // SelectorIndex=4, TableIndicator=GDT(0), Privilege=Ring3
+#define GDT_DATA_SELECTOR       0x08 // SelectorIndex=1, TableIndicator=GDT(0), Privilege=Ring0
+#define GDT_EXEC_SELECTOR       0x10 // SelectorIndex=2, TableIndicator=GDT(0), Privilege=Ring0
+#define GDT_DATA_RING3_SELECTOR 0x1B // SelectorIndex=3, TableIndicator=GDT(0), Privilege=Ring3
+#define GDT_EXEC_RING3_SELECTOR 0x23 // SelectorIndex=4, TableIndicator=GDT(0), Privilege=Ring3
 
 #define IDT_PRESENT (1ull << 47)
 #define IDT_RING0   0

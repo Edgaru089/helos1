@@ -5,6 +5,7 @@
 #include "../runtime/stdio.h"
 #include "../runtime/panic_assert.h"
 #include "testcode.h"
+#include "string.h"
 
 bool interrupt_Enabled;
 
@@ -28,7 +29,7 @@ SYSV_ABI void interrupt_MapHandler(void *handler, int interrupt) {
 */
 
 // defined in assembly
-SYSV_ABI void interrupt_MapHandler(void *handler, int interrupt);
+//SYSV_ABI void interrupt_MapHandler(void *handler, int interrupt);
 
 
 void interrupt_Init() {
@@ -40,21 +41,21 @@ void interrupt_Init() {
 	io_WriteConsoleASCII("interrupt_Init() calling\n");
 
 	// set the 2 dummy gdts
-	uint64_t *gdt = (uint64_t *)KERNEL_GDT_MAPPING;
-	gdt[0]        = 0;
-	gdt[1]        = GDT_EXEC;
-	gdt[2]        = GDT_DATA;
-	gdt[3]        = GDT_EXEC_RING3;
-	gdt[4]        = GDT_DATA_RING3;
+	uint64_t *gdt                     = (uint64_t *)KERNEL_GDT_MAPPING;
+	gdt[0]                            = 0;
+	gdt[GDT_DATA_SELECTOR >> 3]       = GDT_DATA;
+	gdt[GDT_EXEC_SELECTOR >> 3]       = GDT_EXEC;
+	gdt[GDT_DATA_RING3_SELECTOR >> 3] = GDT_DATA_RING3;
+	gdt[GDT_EXEC_RING3_SELECTOR >> 3] = GDT_EXEC_RING3;
 	io_WriteConsoleASCII("GDT Installed\n");
 
-	interrupt_LoadGDT(4 * GDT_SIZE_BYTES - 1, (void *)KERNEL_GDT_MAPPING); // set it!
+	interrupt_LoadGDT(5 * GDT_SIZE_BYTES - 1, (void *)KERNEL_GDT_MAPPING); // set it!
 	io_WriteConsoleASCII("GDT OK\n");
 
 	//interrupt_Testcode();
 	io_WriteConsoleASCII("Testcode OK\n");
 
-
+	memset((void *)KERNEL_IDT_MAPPING, 0, KERNEL_IDT_SIZE);
 	interrupt_MapHandler(interrupt_Int0, 0);
 	interrupt_MapHandler(interrupt_Int1, 1);
 	interrupt_MapHandler(interrupt_Int2, 2);

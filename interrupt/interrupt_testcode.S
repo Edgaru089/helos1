@@ -46,12 +46,18 @@ interrupt_Testcode:
 	lidt [idtr]
 	mov rax, int_handler
 	mov [idt+49*16], ax
-	mov word [idt+49*16+2], 0x08
+	mov word [idt+49*16+2], 0x10
 	mov word [idt+49*16+4], 0x8e00
 	shr rax, 16
 	mov [idt+49*16+6], ax
 	shr rax, 16
 	mov [idt+49*16+8], rax
 
+	; load the CS segment reg with 0x10
+	lea  rax, [.realint]
+	push qword 0x10
+	push rax
+	retfq
+.realint:
 	int 49
 	ret

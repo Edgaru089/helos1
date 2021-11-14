@@ -72,7 +72,7 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 	t->waitCondition   = NULL;
 
 	t->state.cs  = GDT_EXEC_SELECTOR;
-	t->state.ss  = 0;
+	t->state.ss  = GDT_DATA_SELECTOR;
 	t->state.rip = (uint64_t)__smp_thread_EntryPoint;
 
 	t->state.rax = (uint64_t)entry;

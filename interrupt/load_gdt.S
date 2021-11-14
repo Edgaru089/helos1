@@ -11,19 +11,18 @@ section '.text' executable
 ;
 ; Clobbers: rax
 interrupt_ReloadSegments:
-	;mov eax, 0x10  ; my data segment
-	xor ax, ax
+	mov ax, 0x08  ; my data segment
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
 
-	;jmp  0x08:.flush
+	;jmp  0x10:.flush
 	; as in https://forum.osdev.org/viewtopic.php?f=1&t=30739
 	; farjump does not work in long mode, you need to do a far return:
 	pop  rax
-	push qword 0x08  ; my code segment
+	push qword 0x10  ; my code segment
 	push rax
 	retfq
 
