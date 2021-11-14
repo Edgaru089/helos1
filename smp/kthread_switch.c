@@ -27,29 +27,22 @@ static void printTree(tree_Node *root, int level, __tree_ConnectType type) {
 SYSV_ABI uintptr_t __smp_Switch() {
 	// the calling function smp_IntSwitch already CLI-ed for us
 
-	//io_Printf("__smp_Switch: Tick: %d, switching\n", __smp_Now);
 
 	__smp_Thread *t = __smp_Current[0];
 
 	uint64_t priority = UINT64_MAX;
-	// insert the current thread back into the waiting queue
 	if (t)
 		priority = t->nice + (t->lastTick > __smp_Now ? t->lastTick : __smp_Now); // new priority for the thread
-	//printTree(__smp_Threads->root, 0, 0);
-	//printTree(__smp_ThreadsWaiting->root, 0, 0);
+
+	// find the waiting thread with the least priority
 	tree_Node *first = tree_FirstNode(__smp_ThreadsWaiting);
-
-	//io_Printf("    first0.id=%d\n", NODE_POINTER(first) ? NODE_POINTER(first)->id : 0);
-	while (first && (NODE_POINTER(first)->sleepUntil > __smp_Now || NODE_POINTER(first)->waitCondition != NULL)) {
-		//io_Printf("      iterating, .id=%d\n", NODE_POINTER(first) ? NODE_POINTER(first)->id : 0);
+	while (first && (NODE_POINTER(first)->sleepUntil > __smp_Now || NODE_POINTER(first)->waitCondition != NULL))
 		first = tree_Node_Next(first);
-	}
 
-	if (first && (NODE_POINTER(first)->sleepUntil <= __smp_Now && NODE_POINTER(first)->waitCondition == NULL) && first->key > priority) {
+
+	if (first && (NODE_POINTER(first)->sleepUntil <= __smp_Now && NODE_POINTER(first)->waitCondition == NULL) && first->key > priority)
 		// the current thread is still the first, return
-		//io_Printf("    Not context switching, still running %d\n", t ? t->id : 0);
 		return 0;
-	}
 
 	// we need a real context switch
 	// first save the current thread context
@@ -58,10 +51,8 @@ SYSV_ABI uintptr_t __smp_Switch() {
 		memcpy(&t->state, &__smp_IntSwitch_LastState, sizeof(smp_thread_State));
 		tree_Node *node = 0;
 		bool       ok   = false;
-		do {
-			node = tree_InsertNode(__smp_ThreadsWaiting, priority, &ok);
-			priority++;
-		} while (!ok);
+		while (!ok)
+			node = tree_InsertNode(__smp_ThreadsWaiting, priority++, &ok);
 		NODE_POINTER(node) = t;
 	}
 
@@ -70,10 +61,8 @@ SYSV_ABI uintptr_t __smp_Switch() {
 		__smp_IntSwitch_LastState.rip = (uint64_t)__smp_Switch_Idle;
 		__smp_IntSwitch_LastState.rflags |= 1 << 9; // Interrupt Enable flag
 		__smp_Current[0] = 0;
-		//io_WriteConsoleASCII("__smp_Switch: Entering idle\n");
 	} else {
 		// load the new context
-		//io_Printf("    Context switching, from %d to %d\n", t ? t->id : 0, NODE_POINTER(first)->id);
 		memcpy(&__smp_IntSwitch_LastState, &NODE_POINTER(first)->state, sizeof(smp_thread_State));
 		__smp_Current[0] = NODE_POINTER(first);
 		tree_Delete(__smp_ThreadsWaiting, first);
