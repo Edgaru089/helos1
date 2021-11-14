@@ -41,6 +41,7 @@ void interrupt_Init() {
 	io_WriteConsoleASCII("interrupt_Init() calling\n");
 
 	// set the 2 dummy gdts
+	memset((void *)KERNEL_GDT_MAPPING, 0, KERNEL_GDT_SIZE);
 	uint64_t *gdt                     = (uint64_t *)KERNEL_GDT_MAPPING;
 	gdt[0]                            = 0;
 	gdt[GDT_DATA_SELECTOR >> 3]       = GDT_DATA;
@@ -49,7 +50,7 @@ void interrupt_Init() {
 	gdt[GDT_EXEC_RING3_SELECTOR >> 3] = GDT_EXEC_RING3;
 	io_WriteConsoleASCII("GDT Installed\n");
 
-	interrupt_LoadGDT(5 * GDT_SIZE_BYTES - 1, (void *)KERNEL_GDT_MAPPING); // set it!
+	interrupt_LoadGDT(KERNEL_GDT_SIZE - 1, (void *)KERNEL_GDT_MAPPING); // set it!
 	io_WriteConsoleASCII("GDT OK\n");
 
 	//interrupt_Testcode();
