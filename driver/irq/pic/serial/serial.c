@@ -2,9 +2,19 @@
 #include "serial.h"
 #include "../internal.h"
 #include "../../../../interrupt/interrupt.h"
+#include "../../../../memory/memory.h"
+#include "../pic.h"
 
 
-pic_serial_Port pic_serial_COM1 = {0x3f8, false}, pic_serial_COM2 = {0x2f8, false};
+pic_serial_Port pic_serial_COM1 = {0x3f8, 4, false}, pic_serial_COM2 = {0x2f8, 3, false};
+
+SYSV_ABI void __pic_serial_IRQHandler(pic_serial_Port *port) {
+	while ((inb(port->port + 5) & 1)) {
+		uint8_t b = inb(port->port);
+		queue_PushByte(&port->buffer, b);
+		smp_Condition_NotifyAll(port->cond, 0);
+	}
+}
 
 bool pic_serial_Init(pic_serial_Port *port, int baudrate, int lineFlags) {
 	if (115200 % baudrate != 0)
@@ -35,6 +45,22 @@ bool pic_serial_Init(pic_serial_Port *port, int baudrate, int lineFlags) {
 
 	INTERRUPT_RESTORE;
 	return true;
+}
+
+bool pic_serial_InitInput(pic_serial_Port *port) {
+	// Set IRQ handler for serial input
+	if (port->irq) {
+		queue_InitBuffered(&port->buffer, kMalloc(PIC_SERIAL_DEFAULT_BUFFERSIZE), PIC_SERIAL_DEFAULT_BUFFERSIZE);
+		port->cond = smp_Condition_Create();
+
+		irq_pic_IRQHandler[port->irq]      = __pic_serial_IRQHandler;
+		irq_pic_IRQHandler_Data[port->irq] = (uintptr_t)port;
+		irq_pic_Mask(port->irq, false);
+		outb(port->port + 1, 1);
+
+		return true;
+	} else
+		return false;
 }
 
 void pic_serial_Write(pic_serial_Port *port, const char *str, int n) {
