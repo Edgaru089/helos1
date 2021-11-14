@@ -3,6 +3,7 @@ format elf64
 include 'pic_constants.incS'
 
 extrn irq_pic_IntHandler
+extrn irq_pic_IRQHandler_Data
 extrn irq_pic_IRQHandlerRaw
 
 public irq_pic_IntHandler20h

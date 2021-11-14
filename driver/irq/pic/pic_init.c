@@ -9,9 +9,10 @@
 #include <string.h>
 
 
-irq_pic_IRQHandlerType irq_pic_IRQHandler[16];
-void *                 irq_pic_IRQHandlerRaw[16];
-bool                   irq_pic_Enabled;
+void *    irq_pic_IRQHandler[16];
+uintptr_t irq_pic_IRQHandler_Data[16];
+void *    irq_pic_IRQHandlerRaw[16];
+bool      irq_pic_Enabled;
 
 void irq_pic_Init() {
 	assert(interrupt_Enabled && "Interrupt must be set up before PIC init");

@@ -29,12 +29,13 @@ uint16_t irq_pic_GetIRR();
 uint16_t irq_pic_GetISR();
 
 
-// void() for IRQ handlers, no need to call out8(OCW2, 0x6*)
-typedef SYSV_ABI void (*irq_pic_IRQHandlerType)();
+// void(uintptr_t) for IRQ handlers, no need to call out8(OCW2, 0x6*)
+typedef SYSV_ABI void (*irq_pic_IRQHandlerType)(uintptr_t);
 
 // defined in pic_init.c
-extern irq_pic_IRQHandlerType irq_pic_IRQHandler[16];
-extern bool                   irq_pic_Enabled;
+extern void *    irq_pic_IRQHandler[16];
+extern uintptr_t irq_pic_IRQHandler_Data[16]; // written into RDI on handler (first argument)
+extern bool      irq_pic_Enabled;
 
 // If IRQHandlerRaw[irq] is not NULL, the function is jumped to (not called).
 //
