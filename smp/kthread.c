@@ -74,14 +74,16 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 	t->state.cs  = GDT_EXEC_SELECTOR;
 	t->state.ss  = GDT_DATA_SELECTOR;
 	t->state.rip = (uint64_t)__smp_thread_EntryPoint;
-
 	t->state.rax = (uint64_t)entry;
-	t->state.rdi = args->a;
-	t->state.rsi = args->b;
-	t->state.rdx = args->c;
-	t->state.rcx = args->d;
-	t->state.r8  = args->e;
-	t->state.r9  = args->f;
+
+	if (args) {
+		t->state.rdi = args->a;
+		t->state.rsi = args->b;
+		t->state.rdx = args->c;
+		t->state.rcx = args->d;
+		t->state.r8  = args->e;
+		t->state.r9  = args->f;
+	}
 
 	tree_Node *spare = tree_FirstNode(__smp_StackPool);
 	if (spare) {
