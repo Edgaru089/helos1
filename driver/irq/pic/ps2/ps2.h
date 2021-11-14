@@ -59,7 +59,7 @@ extern bool pic_ps2_Mouse4Bytes; // the mouse has 4-byte data packages instead o
 #define PIC_PS2_QUEUESIZE_MOUSE    256
 
 // data queue in bytes for the Keyboard and Mouse IRQs
-extern queue pic_ps2_QueueKeyboard, irq_pic_ps2_QueueMouse;
+extern queue_Queue pic_ps2_QueueKeyboard, irq_pic_ps2_QueueMouse;
 
 
 #ifdef __cplusplus

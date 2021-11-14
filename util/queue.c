@@ -3,13 +3,13 @@
 #include "../runtime/stdio.h"
 
 
-void queue_InitBuffered(queue *q, void *buffer, uintptr_t size) {
+void queue_InitBuffered(queue_Queue *q, void *buffer, uintptr_t size) {
 	q->data = q->begin = q->end = buffer;
 	q->size                     = size;
 	q->count                    = 0;
 }
 
-void queue_PushByte(queue *q, const uint8_t b) {
+void queue_PushByte(queue_Queue *q, const uint8_t b) {
 	if (q->count == q->size) { // no more space
 		io_Printf("queue_PushByte: full[%llu bytes], discarding byte 0x%x\n", q->size, b);
 		return;
@@ -21,7 +21,7 @@ void queue_PushByte(queue *q, const uint8_t b) {
 		q->end = q->data; // out of the buffer: wrap around
 }
 
-uint8_t queue_PopByte(queue *q) {
+uint8_t queue_PopByte(queue_Queue *q) {
 	if (q->count == 0) {
 		io_WriteConsoleASCII("queue_PopByte: poping an empty queue\n");
 		return 0;
@@ -34,7 +34,7 @@ uint8_t queue_PopByte(queue *q) {
 	return data;
 }
 
-void queue_Push(queue *q, const void *buffer, uintptr_t size) {
+void queue_Push(queue_Queue *q, const void *buffer, uintptr_t size) {
 	// TODO Optimize queue_Push and queue_Pop
 	if (queue_Space(q) < size)
 		return;
@@ -42,7 +42,7 @@ void queue_Push(queue *q, const void *buffer, uintptr_t size) {
 		queue_PushByte(q, *i);
 }
 
-uintptr_t queue_Pop(queue *q, void *buffer, uintptr_t size) {
+uintptr_t queue_Pop(queue_Queue *q, void *buffer, uintptr_t size) {
 	if (queue_Size(q) < size)
 		return 0;
 	for (uint8_t *i = buffer; i < (uint8_t *)buffer + size; i++)
@@ -50,7 +50,7 @@ uintptr_t queue_Pop(queue *q, void *buffer, uintptr_t size) {
 	return size;
 }
 
-uint8_t queue_FrontByte(queue *q) {
+uint8_t queue_FrontByte(queue_Queue *q) {
 	if (q->count == 0) {
 		io_WriteConsoleASCII("queue_TopByte: accessing an empty queue\n");
 		return 0;
@@ -58,14 +58,14 @@ uint8_t queue_FrontByte(queue *q) {
 	return *((uint8_t *)q->begin);
 }
 
-bool queue_Empty(queue *q) {
+bool queue_Empty(queue_Queue *q) {
 	return q->count == 0;
 }
 
-uintptr_t queue_Size(queue *q) {
+uintptr_t queue_Size(queue_Queue *q) {
 	return q->count;
 }
 
-uintptr_t queue_Space(queue *q) {
+uintptr_t queue_Space(queue_Queue *q) {
 	return q->size - q->count;
 }

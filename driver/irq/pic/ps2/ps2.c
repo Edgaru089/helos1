@@ -13,8 +13,8 @@
 bool pic_ps2_HasMouse;
 bool pic_ps2_Mouse4Bytes; // the mouse has 4-byte data packages instead of 3
 
-queue   pic_ps2_QueueKeyboard, pic_ps2_QueueMouse;
-uint8_t __pic_ps2_QueueBufferK[PIC_PS2_QUEUESIZE_KEYBOARD], __pic_ps2_QueueBufferM[PIC_PS2_QUEUESIZE_MOUSE];
+queue_Queue pic_ps2_QueueKeyboard, pic_ps2_QueueMouse;
+uint8_t     __pic_ps2_QueueBufferK[PIC_PS2_QUEUESIZE_KEYBOARD], __pic_ps2_QueueBufferM[PIC_PS2_QUEUESIZE_MOUSE];
 
 void pic_ps2_Init() {
 	assert(irq_pic_Enabled && "pic_ps2_Init() requires PIC to be enabled");
