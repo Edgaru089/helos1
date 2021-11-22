@@ -26,7 +26,6 @@ int DeviceFilesystem::__InsertMount(DeviceFilesystem::__DeviceFilesystem_Mount *
 			return -EEXIST;
 		}
 	mounts.Push(m);
-	io_Printf("DeviceFilesystem::__InsertMount(path=\"%s\"): mounts.Size()=%d\n", m->path.C(), (int)mounts.Size());
 	INTERRUPT_RESTORE;
 	return 0;
 }

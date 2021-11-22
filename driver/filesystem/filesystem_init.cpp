@@ -23,7 +23,8 @@ extern "C" void filesystem_Init() {
 static int __readdir_i = 0;
 
 static int __readdir(void *user, const char *name, const helos::filesystem::Filesystem::Stat *stat, helos::filesystem::Filesystem::Readdir_CallbackFlags flags) {
-	io_Printf(", %d %s", __readdir_i++, name);
+	io_WriteConsoleASCII(" ");
+	io_WriteConsoleASCII(name);
 	return 0;
 }
 
