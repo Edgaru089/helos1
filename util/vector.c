@@ -37,8 +37,8 @@ void *vector_Push(vector_Vector *vec, const void *data) {
 }
 
 void vector_Append(vector_Vector *vec, const void *data, uintptr_t n) {
-	uintptr_t oldsize = vec->size, addsize = vec->objectSize * n;
-	vector_Resize(vec, oldsize + addsize);
+	vector_Resize(vec, vector_Size(vec) + n);
+	uintptr_t addsize = vec->objectSize * n, oldsize = vec->size - addsize;
 
 	if (data)
 		memcpy(vec->data + oldsize, data, addsize);
@@ -47,7 +47,7 @@ void vector_Append(vector_Vector *vec, const void *data, uintptr_t n) {
 }
 
 void vector_Resize(vector_Vector *vec, uintptr_t size) {
-	uintptr_t newsize = vec->size + size * vec->objectSize;
+	uintptr_t newsize = size * vec->objectSize;
 	if (newsize > vec->cap) {
 		// grow the buffer exponentially
 		uint64_t newcap = vec->cap;
