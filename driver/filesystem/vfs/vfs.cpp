@@ -2,6 +2,7 @@
 #include "vfs.hpp"
 #include "string.h"
 #include "../../../interrupt/interrupt.h"
+#include "../../../runtime/stdio.h"
 
 namespace helos {
 namespace filesystem {
@@ -26,6 +27,7 @@ int VirtualFilesystem::Mount(const char *where, const char *source, Filesystem *
 		len--;
 
 	__VirtualFilesystem_Mount *m = new __VirtualFilesystem_Mount;
+	m->fs                        = fs;
 	m->where                     = runtime::String(where, len);
 	m->source                    = source;
 
@@ -56,6 +58,7 @@ Filesystem *VirtualFilesystem::FilesystemOfPath(const char *path, const char **f
 		if (strncmp(m->where.C(), path, m->where.Length()) == 0 && m->where.Length() > maxlen) {
 			maxlen = m->where.Length();
 			fs     = m->fs;
+			break;
 		}
 	}
 	INTERRUPT_RESTORE;
@@ -75,7 +78,7 @@ VirtualFilesystem::__VirtualFilesystem_OpenFile *VirtualFilesystem::__CreateOpen
 	__VirtualFilesystem_OpenFile *file = new __VirtualFilesystem_OpenFile;
 	const char                   *fspath;
 	file->fs     = FilesystemOfPath(path, &fspath);
-	file->fspath = fspath;
+	file->fspath = ((strlen(fspath) == 0) ? "/" : fspath);
 
 	return file;
 }

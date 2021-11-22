@@ -42,7 +42,8 @@ public:
 	//
 	// If fspath is not NULL, (*fspath) is set to the path
 	// of the file inside the underlying filesystem, pointing
-	// into the path string.
+	// into the path string. If strlen(*fspath) == 0, the the fspath
+	// should be "/".
 	//
 	// It takes the last part into account. E.g., it returns
 	// the root filesystem if called with "/", and the device
