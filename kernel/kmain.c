@@ -114,6 +114,8 @@ SYSV_ABI void kMain() {
 		smp_thread_Start(kThreader_SerialReader, NULL, SMP_NICENESS_DEFAULT);
 	}
 
+	io_ErrorASCII("kMain: Initialization done\n");
+
 	for (;;) {
 		smp_Condition_Wait(input_Condition);
 		graphics_SwapBuffer();
