@@ -151,6 +151,9 @@ public:
 	virtual Capability Capabilities() { return Capability_NoOpen; }
 
 public:
+	virtual const char *GetFilesystemType() { return "(Default)"; }
+
+public:
 	virtual ~Filesystem() {}
 
 	// Getattr is similar to stat(), returning file status.
