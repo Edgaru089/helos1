@@ -15,6 +15,7 @@
 #include "../smp/kthread.h"
 #include "../smp/condiction.h"
 #include "../driver/irq/pic/serial/serial.h"
+#include "../driver/filesystem/filesystem_init.h"
 
 #include "../execformat/pe/reloc.h"
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
@@ -92,6 +93,10 @@ SYSV_ABI void kMain() {
 		}
 	} else
 		io_WriteConsoleASCII("xcursor_Default: failed to load\n");
+
+	filesystem_Init();
+	io_WriteConsoleASCII("kMain: Filesystem OK\n");
+	filesystem_Ls("/dev");
 
 	io_WriteConsoleASCII("kMain: Initializing threading\n");
 	smp_thread_ID tid = smp_thread_Init();
