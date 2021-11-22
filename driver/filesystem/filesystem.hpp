@@ -145,7 +145,7 @@ public:
 	enum Capability {
 		Capability_AtomicTruncate = 1 << 0, // supports O_TRUNC open flag. If disabled, kernel calls Truncate() and Open() on O_TRUNC.
 		Capability_Export         = 1 << 1, // supports lookup of "." and "..".
-		Capability_NoOpen         = 1 << 2, // does not use Open() (returning ENOSYS), using stateless file I/O
+		Capability_NoOpen         = 1 << 2, // does not use Open()/Opendir() (returning ENOSYS), using stateless file I/O
 	};
 
 	virtual Capability Capabilities() { return Capability_NoOpen; }
