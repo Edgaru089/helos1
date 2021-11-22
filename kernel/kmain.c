@@ -14,6 +14,7 @@
 #include "../driver/input/input.h"
 #include "../smp/kthread.h"
 #include "../smp/condiction.h"
+#include "../driver/irq/pic/serial/serial.h"
 
 #include "../execformat/pe/reloc.h"
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
@@ -44,6 +45,16 @@ static SYSV_ABI void kThreader(int a, int b, int c, int d, int e, int f) {
 		smp_thread_Sleep(768);
 	}
 	io_Printf("kThreader: byebye!\n");
+}
+
+static SYSV_ABI void kThreader_SerialReader() {
+	for (;;) {
+		smp_Condition_Wait(pic_serial_COM1.cond);
+		while (!queue_Empty(&pic_serial_COM1.buffer)) {
+			uint8_t b = queue_PopByte(&pic_serial_COM1.buffer);
+			io_Printf("Serial char: (%d)%c\n", b, b);
+		}
+	}
 }
 
 
@@ -92,6 +103,11 @@ SYSV_ABI void kMain() {
 	io_Printf("New thread, id=%d\n", tid);
 
 	input_Condition = smp_Condition_Create();
+
+	if (pic_serial_InitInput(&pic_serial_COM1)) {
+		io_WriteConsoleASCII("kMain: Serial Input OK\n");
+		smp_thread_Start(kThreader_SerialReader, NULL, SMP_NICENESS_DEFAULT);
+	}
 
 	for (;;) {
 		smp_Condition_Wait(input_Condition);
