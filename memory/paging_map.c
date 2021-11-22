@@ -123,9 +123,9 @@ void paging_map_PageAllocated(uint64_t virtual, int pageCount, int protectionFla
 		for (int i = 0; i < allocated; i++) {
 			io_Printf("paging_map_PageAllocated: mapping physical %llx to virtual %llx\n", buf[i], virtual);
 			paging_map_Page(buf[i], virtual, 1, protectionFlags);
+			virtual += SYSTEM_PAGE_SIZE;
 		}
 
-		virtual += SYSTEM_PAGE_SIZE * allocated;
 		pageCount -= allocated;
 	}
 }
