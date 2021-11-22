@@ -9,18 +9,15 @@ namespace filesystem {
 
 VirtualFilesystem *VFS;
 
-VirtualFilesystem::VirtualFilesystem() {
-	mounts = vector_Create(sizeof(void *));
-}
+VirtualFilesystem::VirtualFilesystem() {}
 
 VirtualFilesystem::~VirtualFilesystem() {
-	for (int i = 0; i < vector_Size(mounts); i++) {
-		delete (*((__VirtualFilesystem_Mount **)vector_At(mounts, i)))->fs;
-		delete *((__VirtualFilesystem_Mount **)vector_At(mounts, i));
+	for (int i = 0; i < mounts.Size(); i++) {
+		delete mounts[i]->fs;
+		delete mounts[i];
 	}
 	if (root.fs)
 		delete root.fs;
-	vector_Destroy(mounts);
 }
 
 int VirtualFilesystem::Mount(const char *where, const char *source, Filesystem *fs) {
@@ -33,14 +30,14 @@ int VirtualFilesystem::Mount(const char *where, const char *source, Filesystem *
 	m->source                    = source;
 
 	INTERRUPT_DISABLE;
-	for (int i = 0; i < vector_Size(mounts); i++)
-		if ((*(__VirtualFilesystem_Mount **)vector_At(mounts, i))->where == m->where) {
+	for (int i = 0; i < mounts.Size(); i++)
+		if (mounts[i]->where == m->where) {
 			delete m;
 			INTERRUPT_RESTORE;
 			return -EEXIST;
 		}
 
-	vector_Push(mounts, &m);
+	mounts.Push(m);
 	INTERRUPT_RESTORE;
 	return 0;
 }
@@ -54,8 +51,8 @@ Filesystem *VirtualFilesystem::FilesystemOfPath(const char *path, const char **f
 	size_t      maxlen = 1;
 
 	INTERRUPT_DISABLE;
-	for (int i = 0; i < vector_Size(mounts); i++) {
-		__VirtualFilesystem_Mount *m = (__VirtualFilesystem_Mount *)vector_At(mounts, i);
+	for (int i = 0; i < mounts.Size(); i++) {
+		__VirtualFilesystem_Mount *m = mounts[i];
 		if (strncmp(m->where.C(), path, m->where.Length()) == 0 && m->where.Length() > maxlen) {
 			maxlen = m->where.Length();
 			fs     = m->fs;

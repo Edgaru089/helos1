@@ -2,8 +2,8 @@
 
 #include "../../../cppruntime/runtime.hpp"
 #include "../filesystem.hpp"
-#include "../../../util/vector.h"
 #include "../../../cppruntime/string.hpp"
+#include "../../../cppruntime/vector.hpp"
 
 namespace helos {
 namespace filesystem {
@@ -75,8 +75,8 @@ private:
 	__VirtualFilesystem_OpenFile *__CreateOpenFile(const char *path);
 
 private:
-	__VirtualFilesystem_Mount root;
-	vector_Vector            *mounts;
+	__VirtualFilesystem_Mount                    root;
+	runtime::Vector<__VirtualFilesystem_Mount *> mounts;
 };
 
 // The global virtual filesystem.
