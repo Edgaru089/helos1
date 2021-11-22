@@ -137,7 +137,7 @@ public:
 	// AllocateBlock allocates a new FAT driver from a block device.
 	//
 	// It only supports 512-byte-block devices.
-	virtual Filesystem *AllocateBlock(BlockDevice *block, Config *config) override;
+	virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) override;
 
 public:
 	// Opendir opens a new directory.

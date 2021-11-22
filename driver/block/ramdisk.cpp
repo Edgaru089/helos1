@@ -5,6 +5,7 @@
 #include <string.h>
 
 namespace helos {
+namespace block {
 
 
 constexpr uint16_t __Ramdisk_Alloc_None    = 0,
@@ -69,4 +70,5 @@ uint64_t BlockDeviceRamdisk::WriteBlock(uint64_t offset, const void *data, uint6
 }
 
 
+} // namespace block
 } // namespace helos

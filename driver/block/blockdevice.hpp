@@ -4,6 +4,7 @@
 #include "../../cppruntime/runtime.hpp"
 
 namespace helos {
+namespace block {
 
 
 // BlockDevice describes random-access storage devices organizing data in blocks of uniform sizes.
@@ -48,4 +49,5 @@ public:
 };
 
 
+} // namespace block
 } // namespace helos

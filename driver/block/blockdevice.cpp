@@ -2,6 +2,7 @@
 #include "blockdevice.hpp"
 
 namespace helos {
+namespace block {
 
 
 class SlicedBlockDevice: public BlockDevice {
@@ -45,4 +46,5 @@ BlockDevice *BlockDevice::Slice(uint64_t blockOffset, uint64_t blockCount) {
 }
 
 
+} // namespace block
 } // namespace helos

@@ -138,7 +138,7 @@ public:
 	// AllocateBlock is called to create a new Filesystem instance from a Block Device.
 	//
 	// On error, NULL is returned.
-	virtual Filesystem *AllocateBlock(BlockDevice *block, Config *config) { return nullptr; }
+	virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) { return nullptr; }
 
 public:
 	// Filesystem implementation capabilitiy bits

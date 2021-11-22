@@ -3,6 +3,7 @@
 #include "blockdevice.hpp"
 
 namespace helos {
+namespace block {
 
 
 // Ramdisk is a block device residing in runtime RAM.
@@ -43,4 +44,5 @@ private:
 };
 
 
+} // namespace block
 } // namespace helos
