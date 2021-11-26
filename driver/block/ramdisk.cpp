@@ -61,7 +61,7 @@ uint64_t BlockDeviceRamdisk::ReadBlock(uint64_t offset, void *data, uint64_t cou
 }
 
 uint64_t BlockDeviceRamdisk::WriteBlock(uint64_t offset, const void *data, uint64_t count) {
-	if (!(perm & PermRead))
+	if (!(perm & PermWrite))
 		return -1;
 	if (count > blockcount - offset)
 		count = blockcount - offset;

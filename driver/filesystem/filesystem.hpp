@@ -125,21 +125,6 @@ public:
 		uint64_t TimeAccess, TimeModification; // UNIX time of last access/modification
 	};
 
-	// Allocate is called to create a new Filesystem instance from a given source.
-	//
-	// The source paramater is quite special.
-	// Beginning with "/" means a local file source (device or image).
-	// Beginning with a "//" means a network target (URL).
-	// Otherwise, this string is non-canonical and its behavior is implementation-depedent.
-	//
-	// On error, NULL is returned.
-	virtual Filesystem *Allocate(const char *source, Config *config) { return nullptr; }
-
-	// AllocateBlock is called to create a new Filesystem instance from a Block Device.
-	//
-	// On error, NULL is returned.
-	virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) { return nullptr; }
-
 public:
 	// Filesystem implementation capabilitiy bits
 	enum Capability {
@@ -255,6 +240,7 @@ public:
 		Readdir_CallbackFlags_StatValid = 1 << 0, // All stat members are valid
 	};
 	// typedef of the callback Readdir() uses to emit directory entries
+	// NAME contains relative filenames (without seperators)
 	typedef int (*Readdir_Callback)(void *user, const char *name, const Stat *stat, Readdir_CallbackFlags flags);
 
 	// Read an open directory.
