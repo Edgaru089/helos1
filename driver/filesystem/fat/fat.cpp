@@ -21,7 +21,7 @@ FAT::~FAT() {
 	}
 }
 
-Filesystem *FAT::AllocateBlock(block::BlockDevice *block, FAT::Config *config) {
+Filesystem *FAT::Allocator::AllocateBlock(block::BlockDevice *block, FAT::Config *config) {
 	FAT *fat    = new FAT;
 	fat->sector = new char[512];
 

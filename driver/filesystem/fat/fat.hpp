@@ -2,6 +2,7 @@
 
 #include "../../../cppruntime/runtime.hpp"
 #include "../filesystem.hpp"
+#include "../format.hpp"
 #include "../../../main.h"
 
 namespace helos {
@@ -134,10 +135,13 @@ private:
 public:
 	~FAT();
 
-	// AllocateBlock allocates a new FAT driver from a block device.
-	//
-	// It only supports 512-byte-block devices.
-	virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) override;
+	class Allocator: public FilesystemAllocator {
+	public:
+		// AllocateBlock allocates a new FAT driver from a block device.
+		//
+		// It only supports 512-byte-block devices.
+		virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) override;
+	};
 
 public:
 	// Opendir opens a new directory.
@@ -167,7 +171,7 @@ private:
 	BIOSParamBlock *bpb;
 	union {
 		ExtBootRecord_12_16 *ebr;
-		ExtBootRecord_32 *   ebr32;
+		ExtBootRecord_32    *ebr32;
 	};
 
 	// A copy of the entire FAT
