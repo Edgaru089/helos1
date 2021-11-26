@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../filesystem.hpp"
+#include "../format.hpp"
 #include "../../../cppruntime/vector.hpp"
 
 namespace helos {
@@ -8,7 +9,16 @@ namespace filesystem {
 
 
 // Internal USTAR header struct
-struct __USTAR_File;
+struct __USTAR_File {
+	uintptr_t          offset;     // Offset in blocks of the real file data
+	char              *filename;   // Filename, begin with '/', allocated
+	char              *linkname;   // Symlink target, begin with '/', allocated
+	uint64_t           size;       // Size in bytes of the file
+	uint64_t           lastmodify; // Last modify UNIX time
+	Filesystem::mode_t mode;       // File mode (rwxrwxrwx and file type)
+	uint16_t           owner;      // Owner ID
+	uint16_t           group;      // Group ID
+};
 
 // USTAR is a read-only TAR filesystem driver.
 class USTAR: public Filesystem {
@@ -20,10 +30,13 @@ public:
 	virtual Capability  Capabilities() override { return Capability(0); }
 
 public:
-	// Create a new Filesystem instance from a given source.
-	virtual Filesystem *Allocate(const char *source, Config *config) override;
-	// Create a new Filesystem instance from a Block Device.
-	virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) override;
+	class Allocator: public FilesystemAllocator {
+	public:
+		// Create a new Filesystem instance from a given source.
+		virtual Filesystem *Allocate(const char *source, Config *config) override;
+		// Create a new Filesystem instance from a Block Device.
+		virtual Filesystem *AllocateBlock(block::BlockDevice *block, Config *config) override;
+	};
 
 public:
 	// Operations we do not support
@@ -59,7 +72,11 @@ public:
 	virtual int Closedir(const char *path, OpenFile *file) override;
 
 private:
+	// Fill in a Stat structure for a file.
+	void __Stat(Stat *stat, int i);
+
 	runtime::Vector<__USTAR_File> files; // Vector holding all the files in the archive.
+	block::BlockDevice           *block;
 };
 
 
