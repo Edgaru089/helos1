@@ -22,6 +22,20 @@ VirtualFilesystem::~VirtualFilesystem() {
 }
 
 int VirtualFilesystem::Mount(const char *where, const char *source, Filesystem *fs) {
+	if (!fs) {
+		io_Errorf("VFS::Mount(): mount to \"%s\" from \"%s\" failed: %s\n", where, source, "nullptr filesystem");
+		return -EINVAL;
+	}
+
+	if (strcmp(where, "/") == 0) {
+		INTERRUPT_DISABLE;
+		root.fs     = fs;
+		root.source = source;
+		root.where  = where;
+		INTERRUPT_RESTORE;
+		return 0;
+	}
+
 	size_t len = strlen(where);
 	while (len > 1 && where[len - 1] == Seperator) // ditch the trailing seperators
 		len--;
@@ -49,6 +63,12 @@ int VirtualFilesystem::Umount(const char *where) {
 }
 
 Filesystem *VirtualFilesystem::FilesystemOfPath(const char *path, const char **fspath) {
+	if (strcmp(path, "/") == 0) {
+		if (fspath)
+			(*fspath) = path;
+		return root.fs;
+	}
+
 	Filesystem *fs     = root.fs;
 	size_t      maxlen = 1;
 
@@ -111,7 +131,7 @@ int VirtualFilesystem::Close(const char *path, VirtualFilesystem::OpenFile *file
 int VirtualFilesystem::Opendir(const char *path, VirtualFilesystem::OpenFile *file) {
 	__VirtualFilesystem_OpenFile *vfsfile = __CreateOpenFile(path);
 
-	if (!(vfsfile->fs->Capabilities() | Capability_NoOpen)) {
+	if (!(vfsfile->fs->Capabilities() & Capability_NoOpen)) {
 		int userret = vfsfile->fs->Opendir(vfsfile->fspath.C(), &vfsfile->userfile);
 		if (userret < 0) {
 			delete vfsfile;
