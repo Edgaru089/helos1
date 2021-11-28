@@ -75,6 +75,9 @@ Filesystem *USTAR::Allocator::AllocateBlock(block::BlockDevice *block, Config *c
 		file.filename[0] = Seperator;
 		memcpy(file.filename + 1, meta->prefix, prefixlen);
 		strcpy(file.filename + prefixlen + 1, meta->filename);
+		if (file.filename[filelen + prefixlen] == Seperator)
+			file.filename[filelen + prefixlen] = '\0'; // Filename sometimes end in '/'
+
 		file.linkname   = nullptr;
 		file.owner      = (uint16_t)decodeOctets(meta->owner, 0);
 		file.group      = (uint16_t)decodeOctets(meta->group, 0);
@@ -223,14 +226,15 @@ int USTAR::Readdir(const char *path, void *user, Readdir_Callback callback, Open
 			continue; // Not an ancestor
 
 		size_t curlen = strlen(files[i].filename);
-		for (int i = pathlen + 1; i < curlen; i++)
-			if (files[i].filename[i] == Seperator)
-				continue; // Not directly a child
+		for (int j = pathlen + 1; j < curlen; j++)
+			if (files[i].filename[j] == Seperator)
+				goto endloop; // Not directly a child
 
 		// OK!
 		Stat stat;
 		__Stat(&stat, i);
 		callback(user, files[i].filename + pathlen + 1, &stat, Readdir_CallbackFlags_StatValid);
+endloop:;
 	}
 	return 0;
 }
