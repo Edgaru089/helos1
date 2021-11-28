@@ -12,14 +12,16 @@ objects     := $(filter-out $(objects_test),$(objects))
 
 all: Main.efi
 
+include embed/Makefile
 
-Main.efi: $(objects) $(objects_fasm)
+
+Main.efi: initrd $(objects) $(objects_fasm)
 	$(LD) $(LDFLAGS) $(objects) $(objects_fasm) $(LDLIBS)
 
 
 clean:
 	echo " -RM    Main.efi $(objects)"
-	-$(RM) -f Main.efi $(objects) $(objects_fasm)
+	-$(RM) -f Main.efi $(objects) $(objects_fasm) embed/initrd.tar
 
 install: Main.efi
 	echo "  CP    Main.efi ../FAT/EFI/Boot/bootx64.efi"

@@ -1,0 +1,2 @@
+# Boot environment
+INTERACTIVE=/dev/ttyS0:/dev/ttyfb1

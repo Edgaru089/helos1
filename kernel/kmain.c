@@ -97,6 +97,7 @@ SYSV_ABI void kMain() {
 	filesystem_Init();
 	io_WriteConsoleASCII("kMain: Filesystem OK\n");
 	filesystem_Ls("/dev");
+	filesystem_Ls("/");
 
 	io_WriteConsoleASCII("kMain: Initializing threading\n");
 	smp_thread_ID tid = smp_thread_Init();

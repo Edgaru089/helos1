@@ -11,6 +11,9 @@
 a.out
 Main.efi
 
+# Initrd binary
+embed/initrd.*
+
 # macOS trash
 .DS_Store
 # vscode trash
