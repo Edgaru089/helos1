@@ -36,11 +36,11 @@ SYSV_ABI uintptr_t __smp_Switch() {
 
 	// find the waiting thread with the least priority
 	tree_Node *first = tree_FirstNode(__smp_ThreadsWaiting);
-	while (first && (NODE_POINTER(first)->sleepUntil > __smp_Now || NODE_POINTER(first)->waitCondition != NULL))
+	while (first && (NODE_POINTER(first)->sleepUntil > __smp_Now || __smp_Thread_Waiting_IsWaiting(NODE_POINTER(first)->wait)))
 		first = tree_Node_Next(first);
 
 
-	if (first && (NODE_POINTER(first)->sleepUntil <= __smp_Now && NODE_POINTER(first)->waitCondition == NULL) && first->key > priority)
+	if (first && (NODE_POINTER(first)->sleepUntil <= __smp_Now && !__smp_Thread_Waiting_IsWaiting(NODE_POINTER(first)->wait)) && first->key > priority)
 		// the current thread is still the first, return
 		return 0;
 

@@ -39,13 +39,13 @@ smp_thread_ID smp_thread_Init() {
 	__smp_Now            = 1;
 
 	smp_thread_ID id   = ++__smp_Idallo;
-	tree_Node *   node = tree_InsertNode(__smp_Threads, id, NULL);
+	tree_Node    *node = tree_InsertNode(__smp_Threads, id, NULL);
 	__smp_Thread *t    = (__smp_Thread *)node->data;
 	t->nice            = SMP_NICENESS_DEFAULT;
 	t->id              = id;
 	t->lastTick        = 1;
 	t->sleepUntil      = 0;
-	t->waitCondition   = NULL;
+	t->wait            = kMalloc(sizeof(__smp_Thread_Waiting));
 	__smp_Count        = 1;
 
 	__smp_Current    = kMalloc(sizeof(void *) * __smp_Count);
@@ -63,13 +63,13 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 	INTERRUPT_DISABLE;
 
 	smp_thread_ID id   = ++__smp_Idallo;
-	tree_Node *   node = tree_InsertNode(__smp_Threads, id, NULL);
+	tree_Node    *node = tree_InsertNode(__smp_Threads, id, NULL);
 	__smp_Thread *t    = (__smp_Thread *)node->data;
 	t->nice            = nice;
 	t->id              = id;
 	t->lastTick        = __smp_Now;
 	t->sleepUntil      = 0;
-	t->waitCondition   = NULL;
+	t->wait            = kMalloc(sizeof(__smp_Thread_Waiting));
 
 	t->state.cs  = GDT_EXEC_SELECTOR;
 	t->state.ss  = GDT_DATA_SELECTOR;
