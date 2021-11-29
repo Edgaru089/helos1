@@ -14,8 +14,8 @@ extern "C" {
 
 // Channel is a one-way data channel across threads, with a fix-sized buffer.
 typedef struct {
-	queue_Queue *  queue;       // internal buffer of data
-	void *         buffer;      // buffer for at least one piece of data
+	queue_Queue   *queue;       // internal buffer of data
+	void          *buffer;      // buffer for at least one piece of data
 	vector_Vector *send, *recv; // __smp_Channel_Waiter, for send and receive to wait on, and notify the other
 	uintptr_t      objSize;     // size in bytes of the underlying object, 0 if destroyed
 	intptr_t       waitcnt;     // (unused) >0: Send is waiting;  <0: Recv is waiting;  ==0: Nobody is waiting

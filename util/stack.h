@@ -9,9 +9,9 @@ extern "C" {
 
 
 typedef struct {
-	void *    data; // the data buffer
+	void     *data; // the data buffer
 	uintptr_t size; // size of data buffer
-	void *    top;  // top of the stack, the stack grows downward (from data+size to data)
+	void     *top;  // top of the stack, the stack grows downward (from data+size to data)
 } stack;
 
 // initialize a stack with a existing buffer

@@ -9,7 +9,7 @@ extern "C" {
 
 // Vector is an automatic-resizing array.
 typedef struct {
-	void *    data;       // actual data buffer
+	void     *data;       // actual data buffer
 	uintptr_t size, cap;  // size of the data and buffer, in bytes
 	uintptr_t objectSize; // size of the object
 } vector_Vector;

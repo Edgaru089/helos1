@@ -54,10 +54,10 @@ FASTCALL_ABI EFI_STATUS efiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *System
 }
 
 EFI_HANDLE         efiImageHandle;
-EFI_SYSTEM_TABLE * efiSystemTable;
+EFI_SYSTEM_TABLE  *efiSystemTable;
 EFI_BOOT_SERVICES *efiBootServices;
 
 SIMPLE_TEXT_OUTPUT_INTERFACE *efiStdout, *efiStderr;
-SIMPLE_INPUT_INTERFACE *      efiStdin;
+SIMPLE_INPUT_INTERFACE       *efiStdin;
 
 char Buffer[HELOS_BUFFER_SIZE];

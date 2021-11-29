@@ -12,8 +12,8 @@ extern "C" {
 
 
 extern EFI_HANDLE         efiImageHandle;
-extern EFI_SYSTEM_TABLE * efiSystemTable;
+extern EFI_SYSTEM_TABLE  *efiSystemTable;
 extern EFI_BOOT_SERVICES *efiBootServices;
 
 extern SIMPLE_TEXT_OUTPUT_INTERFACE *efiStdout, *efiStderr;
-extern SIMPLE_INPUT_INTERFACE *      efiStdin;
+extern SIMPLE_INPUT_INTERFACE       *efiStdin;

@@ -31,7 +31,7 @@ extern "C" {
 
 typedef struct {
 	uint16_t length;
-	void *   base;
+	void    *base;
 } PACKED interrupt_DescriptorTableReference;
 
 

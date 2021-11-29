@@ -70,7 +70,7 @@ typedef struct {
 
 
 typedef struct {
-	xcursor_Header *  header;
+	xcursor_Header   *header;
 	uintptr_t         size; // size of the file in bytes
 	uintptr_t         n;    // number of Chunks/TOC Entries
 	xcursor_TOCEntry *toc;  // array of TOC Entries

@@ -26,8 +26,8 @@ typedef struct {
 } HelosGraphics_Mode;
 
 
-extern void *             graphics_DeviceFramebuffer; // this is the framebuffer directly for the device via memory mapping.
-extern void *             graphics_Framebuffer;       // this is the double-buffered framebuffer (back buffer)
+extern void              *graphics_DeviceFramebuffer; // this is the framebuffer directly for the device via memory mapping.
+extern void              *graphics_Framebuffer;       // this is the double-buffered framebuffer (back buffer)
 extern uint64_t           graphics_FramebufferSize;
 extern HelosGraphics_Mode graphics_SystemVideoMode; // system video mode
 

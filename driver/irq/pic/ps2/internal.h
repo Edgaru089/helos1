@@ -53,9 +53,9 @@ static inline void __ps2_ReadACK() {
 // sets the sample rate of the mouse
 static inline void __ps2_SetMouseRate(uint8_t rate) {
 	__ps2_WriteCommandData(PIC_PS2_CMD_SEND_MOUSE, 0xf3); // command to the mouse
-	__ps2_ReadACK();                                          // read the ACK
+	__ps2_ReadACK();                                      // read the ACK
 	__ps2_WriteCommandData(PIC_PS2_CMD_SEND_MOUSE, rate); // send the rate
-	__ps2_ReadACK();                                          // read the ACK
+	__ps2_ReadACK();                                      // read the ACK
 }
 
 
