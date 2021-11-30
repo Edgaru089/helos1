@@ -11,7 +11,7 @@ void queue_InitBuffered(queue_Queue *q, void *buffer, uintptr_t size) {
 
 void queue_PushByte(queue_Queue *q, const uint8_t b) {
 	if (q->count == q->size) { // no more space
-		io_Printf("queue_PushByte: full[%llu bytes], discarding byte 0x%x\n", q->size, b);
+		io_Errorf("queue_PushByte: full[%llu bytes], discarding byte 0x%x\n", q->size, b);
 		return;
 	}
 
@@ -23,7 +23,7 @@ void queue_PushByte(queue_Queue *q, const uint8_t b) {
 
 uint8_t queue_PopByte(queue_Queue *q) {
 	if (q->count == 0) {
-		io_WriteConsoleASCII("queue_PopByte: poping an empty queue\n");
+		io_Error("queue_PopByte: poping an empty queue\n");
 		return 0;
 	}
 
@@ -52,7 +52,7 @@ uintptr_t queue_Pop(queue_Queue *q, void *buffer, uintptr_t size) {
 
 uint8_t queue_FrontByte(queue_Queue *q) {
 	if (q->count == 0) {
-		io_WriteConsoleASCII("queue_TopByte: accessing an empty queue\n");
+		io_Error("queue_TopByte: accessing an empty queue\n");
 		return 0;
 	}
 	return *((uint8_t *)q->begin);
