@@ -149,8 +149,6 @@ const input_Key __pic_ps2_KeyScancode1[] = {input_Key_Unknown, input_Key_Escape,
 static inline bool __pic_ps2_DecodeKeyScancode1(input_Event *event) {
 	uint8_t byte0 = queue_FrontByte(&pic_ps2_QueueKeyboard);
 
-	io_Printf("__pic_ps2_DecodeKeyScancode1(): Byte0=0x%X\n", byte0);
-
 	if (byte0 == 0xfa) // ACK
 		queue_PopByte(&pic_ps2_QueueKeyboard);
 	else if (byte0 >= 0x01 && byte0 <= 0x58) {
@@ -169,7 +167,6 @@ static inline bool __pic_ps2_DecodeKeyScancode1(input_Event *event) {
 
 		queue_PopByte(&pic_ps2_QueueKeyboard);
 		uint8_t byte1 = queue_PopByte(&pic_ps2_QueueKeyboard);
-		io_Printf("                                Byte1=0x%X\n", byte1);
 
 		event->Type = input_Key_Unknown;
 		switch (byte1) {
