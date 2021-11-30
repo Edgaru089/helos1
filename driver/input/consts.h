@@ -77,10 +77,10 @@ typedef enum {
 	input_Key_Home,         // The Home key
 	input_Key_Insert,       // The Insert key
 	input_Key_Delete,       // The Delete key
-	input_Key_Add,          // The + key
+	input_Key_Add,          // The + key (numpad)
 	input_Key_Subtract,     // The - key (minus, usually from numpad)
-	input_Key_Multiply,     // The * key
-	input_Key_Divide,       // The / key
+	input_Key_Multiply,     // The * key (numpad)
+	input_Key_Divide,       // The / key (numpad)
 	input_Key_Left,         // Left arrow
 	input_Key_Right,        // Right arrow
 	input_Key_Up,           // Up arrow
@@ -111,9 +111,14 @@ typedef enum {
 	input_Key_F14,          // The F14 key
 	input_Key_F15,          // The F15 key
 	input_Key_Pause,        // The Pause key
+	input_Key_CapsLock,     // The Caps Lock key
+	input_Key_NumLock,      // The Number Lock key
+	input_Key_ScrollLock,   // The Scroll Lock key
 
 	input_Key_Count, // Keep last - the total number of keyboard keys
 } input_Key;
+
+const char *input_Key_GetName(input_Key key);
 
 
 typedef enum {

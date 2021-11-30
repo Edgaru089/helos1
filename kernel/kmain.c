@@ -108,7 +108,9 @@ SYSV_ABI void kMain() {
 	tid = smp_thread_Start(kThreader, &args, SMP_NICENESS_DEFAULT);
 	io_Printf("New thread, id=%d\n", tid);
 
-	input_Condition = smp_Condition_Create();
+	input_Condition  = smp_Condition_Create();
+	input_EventQueue = kMalloc(sizeof(queue_Queue));
+	queue_InitBuffered(input_EventQueue, kMalloc(sizeof(input_Event) * 32), sizeof(input_Event) * 32);
 
 	if (pic_serial_InitInput(&pic_serial_COM1)) {
 		io_WriteConsoleASCII("kMain: Serial Input OK\n");
@@ -120,5 +122,24 @@ SYSV_ABI void kMain() {
 	for (;;) {
 		smp_Condition_Wait(input_Condition);
 		graphics_SwapBuffer();
+
+		input_Event e;
+		INTERRUPT_DISABLE;
+		while (queue_Size(input_EventQueue) > 0) {
+			queue_Pop(input_EventQueue, &e, sizeof(e));
+			INTERRUPT_RESTORE;
+
+			if (e.Type == input_EventType_KeyPressed) {
+				io_Printf("kMain: KeyPressed: %s\n", input_Key_GetName(e.Key.Key));
+			} else if (e.Type == input_EventType_KeyReleased) {
+				io_Printf("kMain: KeyReleased: %s\n", input_Key_GetName(e.Key.Key));
+			} else if (e.Type == input_EventType_MouseButtonPressed) {
+				io_Printf("kMain: MouseButtonPressed: %d\n", (int)e.MouseButton.Button);
+			} else if (e.Type == input_EventType_MouseButtonReleased) {
+				io_Printf("kMain: MouseButtonReleased: %d\n", (int)e.MouseButton.Button);
+			}
+			INTERRUPT_DISABLE;
+		}
+		INTERRUPT_RESTORE;
 	}
 }

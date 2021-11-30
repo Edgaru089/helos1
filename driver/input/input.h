@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../smp/condiction.h"
+#include "../../util/queue.h"
 #include <stdbool.h>
 #include "consts.h"
 
@@ -11,6 +12,8 @@ extern "C" {
 
 // If input_Condition is not NULL, it is notified on new input events.
 extern smp_Condition *input_Condition;
+
+extern queue_Queue *input_EventQueue; // Queue of input_Event
 
 // input_KeyPressed tells if a given key is present and pressed.
 bool input_KeyPressed(input_Key key);
