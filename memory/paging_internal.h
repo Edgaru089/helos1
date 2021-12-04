@@ -17,6 +17,7 @@ extern int      paging_EndPhysicalPage;     // past-the-end for physical pages (
 extern uint64_t paging_PML4Table[512];      // Kernel-mode virtual memory paging directory pointer table (PAE/Level 4 paging)
 extern uint64_t paging_LoaderCodeAddress;   // physical address for loader code section
 extern int      paging_LoaderCodePageCount; // page count for loader code section
+extern uint64_t paging_IdentityOffset;      // offset of memory identity mapping
 
 // defined in paging_physical.c
 #define BITMAP_BITS 64

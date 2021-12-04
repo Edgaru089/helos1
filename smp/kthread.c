@@ -46,6 +46,7 @@ smp_thread_ID smp_thread_Init() {
 	t->lastTick        = 1;
 	t->sleepUntil      = 0;
 	t->wait            = kMalloc(sizeof(__smp_Thread_Waiting));
+	t->process         = NULL;
 	__smp_Count        = 1;
 
 	__smp_Current    = kMalloc(sizeof(void *) * __smp_Count);
@@ -70,6 +71,7 @@ smp_thread_ID smp_thread_Start(void *entry, const smp_thread_Arguments *args, un
 	t->lastTick        = __smp_Now;
 	t->sleepUntil      = 0;
 	t->wait            = kMalloc(sizeof(__smp_Thread_Waiting));
+	t->process         = NULL;
 
 	t->state.cs  = GDT_EXEC_SELECTOR;
 	t->state.ss  = GDT_DATA_SELECTOR;

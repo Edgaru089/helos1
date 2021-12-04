@@ -36,6 +36,8 @@ typedef struct {
 	// Last-saved thread state after preemptive context switch
 	smp_thread_State state;
 	uint64_t         stackframe; // stack frame, lowest (begin) addr
+
+	void *process; // userspace process structure, or NULL for kernel thread
 } __smp_Thread;
 
 // variables defined in internal.c
