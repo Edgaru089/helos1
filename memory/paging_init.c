@@ -33,7 +33,7 @@ int      paging_LoaderCodePageCount;                      // page count for load
 
 void runtime_InitPaging() {
 	// TODO Obtain Execute Disable support status instead of assumpting its existence
-	paging_SupportExecuteDisable = true;
+	paging_SupportExecuteDisable = false;
 
 	// obtain the UEFI memory mapping
 	EFI_STATUS status;
@@ -85,19 +85,19 @@ void runtime_InitPaging() {
 				entry->PhysicalStart / SYSTEM_PAGE_SIZE,
 				entry->PhysicalStart / SYSTEM_PAGE_SIZE + entry->NumberOfPages);
 			paging_UsableBytes += SYSTEM_PAGE_SIZE * entry->NumberOfPages;
+		if (paging_EndPhysicalAddress < entry->PhysicalStart + entry->NumberOfPages * SYSTEM_PAGE_SIZE)
+			paging_EndPhysicalAddress = entry->PhysicalStart + entry->NumberOfPages * SYSTEM_PAGE_SIZE;
 		} else // page unusable
 			   /*paging_physical_BitmapWriteOne(
 				entry->PhysicalStart / SYSTEM_PAGE_SIZE,
 				entry->PhysicalStart / SYSTEM_PAGE_SIZE + entry->NumberOfPages);*/
 			;
-		if (entry->Type == EfiLoaderCode) {
+		if (entry->Type == EfiLoaderCode && link_TextStart >= entry->PhysicalStart && link_TextStart <= entry->PhysicalStart + SYSTEM_PAGE_SIZE * entry->NumberOfPages) {
 			assert(!paging_LoaderCodeAddress && "Two EfiLoaderCode mappings at the same time");
 			paging_LoaderCodeAddress   = entry->PhysicalStart;
 			paging_LoaderCodeSize      = entry->NumberOfPages * SYSTEM_PAGE_SIZE;
 			paging_LoaderCodePageCount = entry->NumberOfPages;
 		}
-		if (paging_EndPhysicalAddress < entry->PhysicalStart + entry->NumberOfPages * SYSTEM_PAGE_SIZE)
-			paging_EndPhysicalAddress = entry->PhysicalStart + entry->NumberOfPages * SYSTEM_PAGE_SIZE;
 	}
 	paging_EndPhysicalPage = paging_EndPhysicalAddress / SYSTEM_PAGE_SIZE;
 
