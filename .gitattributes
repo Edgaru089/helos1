@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+extlib/*    -text -eol linguist-vendored
+extlib/**/* -text -eol linguist-vendored
