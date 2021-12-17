@@ -33,24 +33,47 @@ void unifont_DrawChar(int posX, int posY, const HelosGraphics_Color *color, uint
 }
 
 void unifont_DrawString(int posX, int posY, const HelosGraphics_Color *color, const uint32_t *codepoints, int count) {
+	int x = posX, y = posY;
 	for (const uint32_t *end = codepoints + count; codepoints != end; codepoints++) {
-		unifont_DrawChar(posX, posY, color, *codepoints);
-		posX += UNIFONT_CHAR_WIDTH * (unifont_IsCharDoublewidth(*codepoints) ? 2 : 1);
+		if (*codepoints == '\n') {
+			x = posX;
+			y += UNIFONT_CHAR_HEIGHT;
+		} else if (*codepoints == '\r') {
+			x = posX;
+		} else {
+			unifont_DrawChar(x, y, color, *codepoints);
+			x += UNIFONT_CHAR_WIDTH * (unifont_IsCharDoublewidth(*codepoints) ? 2 : 1);
+		}
 	}
 }
 void unifont_DrawStringUTF16(int posX, int posY, const HelosGraphics_Color *color, const uint16_t *codepoints, int count) {
+	int x = posX, y = posY;
 	for (const uint16_t *end = codepoints + count; codepoints != end; codepoints++) {
-		unifont_DrawChar(posX, posY, color, *codepoints);
-		posX += UNIFONT_CHAR_WIDTH * (unifont_IsCharDoublewidth(*codepoints) ? 2 : 1);
+		if (*codepoints == '\n') {
+			x = posX;
+			y += UNIFONT_CHAR_HEIGHT;
+		} else if (*codepoints == '\r') {
+			x = posX;
+		} else {
+			unifont_DrawChar(x, y, color, *codepoints);
+			x += UNIFONT_CHAR_WIDTH * (unifont_IsCharDoublewidth(*codepoints) ? 2 : 1);
+		}
 	}
 }
 void unifont_DrawStringASCII(int posX, int posY, const HelosGraphics_Color *color, const char *codepoints, int count) {
-	if (count == 0) {
+	if (count == 0)
 		count = strlen(codepoints);
-	}
+
+	int x = posX, y = posY;
 	for (const char *end = codepoints + count; codepoints != end; codepoints++) {
-		unifont_DrawChar(posX, posY, color, *codepoints);
-		//posX += UNIFONT_CHAR_WIDTH * (unifont_IsCharDoublewidth(*codepoints) ? 2 : 1);
-		posX += UNIFONT_CHAR_WIDTH; // visible ASCII chars are all single-width
+		if (*codepoints == '\n') {
+			x = posX;
+			y += UNIFONT_CHAR_HEIGHT;
+		} else if (*codepoints == '\r') {
+			x = posX;
+		} else {
+			unifont_DrawChar(x, y, color, *codepoints);
+			x += UNIFONT_CHAR_WIDTH; // visible ASCII chars are all single-width
+		}
 	}
 }
