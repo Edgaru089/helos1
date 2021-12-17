@@ -1,9 +1,11 @@
 
 #include "../main.h"
+#include "string.h"
 #include "kmain.h"
 
 #include "../runtime/stdio.h"
 #include "../runtime/panic_assert.h"
+#include "../runtime/printf.h"
 #include "../memory/memory.h"
 #include "../memory/paging_internal.h"
 #include "../interrupt/interrupt.h"
@@ -14,6 +16,7 @@
 #include "../driver/input/input.h"
 #include "../smp/kthread.h"
 #include "../smp/condiction.h"
+#include "../smp/metrics.h"
 #include "../driver/irq/pic/serial/serial.h"
 #include "../driver/filesystem/filesystem_init.h"
 
@@ -21,6 +24,7 @@
 void execformat_pe_ReadSystemHeader(execformat_pe_PortableExecutable *pe);
 
 #include "../graphics/graphics.h"
+#include "../graphics/unifont.h"
 #include "../graphics/xcursor/xcursor.h"
 #include "../embed/files.h"
 
@@ -55,6 +59,30 @@ static SYSV_ABI void kThreader_SerialReader() {
 			uint8_t b = queue_PopByte(&pic_serial_COM1.buffer);
 			io_Printf("Serial char: (%d)%c\n", b, b);
 		}
+	}
+}
+
+static SYSV_ABI void kThreader_Overlay() {
+	uint64_t prevIdle = smp_metrics_Tick_Idling, prevKernel = smp_metrics_Tick_Kernel, prevUser = smp_metrics_Tick_Userspace;
+	for (;;) {
+		smp_thread_Sleep(1024);
+		uint64_t deltaIdle   = smp_metrics_Tick_Idling - prevIdle;
+		uint64_t deltaKernel = smp_metrics_Tick_Kernel - prevKernel;
+		uint64_t deltaUser   = smp_metrics_Tick_Userspace - prevUser;
+
+		HelosGraphics_Color fill = {20, 20, 20, 0};
+		graphics_FillPixel(graphics_SystemVideoMode.Width - UNIFONT_CHAR_WIDTH * 11, 0, graphics_SystemVideoMode.Width, UNIFONT_CHAR_HEIGHT * 3, &fill);
+
+		char buf[512];
+		snprintf(buf, 512, "  Idle %4d\nKernel %4d\n  User %4d", deltaIdle, deltaKernel, deltaUser);
+		unifont_DrawStringASCII(graphics_SystemVideoMode.Width - UNIFONT_CHAR_WIDTH * 11, 0, &HelosGraphics_Color_White, buf, 0);
+		graphics_Invalidate(graphics_SystemVideoMode.Width - UNIFONT_CHAR_WIDTH * 11, 0, UNIFONT_CHAR_WIDTH * 11, UNIFONT_CHAR_HEIGHT * 3);
+		graphics_SwapBuffer();
+		// io_WriteConsoleASCII(buf);
+
+		prevIdle   = smp_metrics_Tick_Idling;
+		prevKernel = smp_metrics_Tick_Kernel;
+		prevUser   = smp_metrics_Tick_Userspace;
 	}
 }
 
@@ -116,6 +144,8 @@ SYSV_ABI void kMain() {
 		io_WriteConsoleASCII("kMain: Serial Input OK\n");
 		smp_thread_Start(kThreader_SerialReader, NULL, SMP_NICENESS_DEFAULT);
 	}
+
+	smp_thread_Start(kThreader_Overlay, 0, SMP_NICENESS_DEFAULT);
 
 	io_ErrorASCII("kMain: Initialization done\n");
 
