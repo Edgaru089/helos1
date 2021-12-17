@@ -21,10 +21,10 @@ paging_modeswitch_4LevelPaging:
 	;                 CR4.LA57          (bit 12) = 0 (4-level paging instead of 5)
 	; We only need to set CR4.LA57
 	; Let's also set CR4.PCIDE(bit 17)=1, enabling process-context identifiers
-	mov rax, cr0
+	mov rax, cr4
 	and rax, 0xFFFFFFFFFFFFEFFF ; unset CR4.LA57
 	or  rax, 0x20000    ; set CR4.PCIDE
-	mov cr0, rax
+	mov cr4, rax
 	
 	and rdx, 0xFFF  ; take only the 11:0 bits of the PCID
 	or  rcx, rdx    ; construct the full CR3
@@ -48,10 +48,10 @@ paging_modeswitch_4LevelPagingNX:
 	;                 CR4.LA57          (bit 12) = 0 (4-level paging instead of 5)
 	; We only need to set CR4.LA57
 	; Let's also set CR4.PCIDE(bit 17)=1, enabling process-context identifiers
-	mov rax, cr0
+	mov rax, cr4
 	and rax, 0xFFFFFFFFFFFFEFFF ; unset CR4.LA57
 	or  rax, 0x20000    ; set CR4.PCIDE (bit 17)
-	mov cr0, rax
+	mov cr4, rax
 
 	; save rcx and rdx, RDMSR/WRMSR uses these
 	mov r8, rcx
