@@ -9,9 +9,6 @@
 extern "C" {
 #endif
 
-// This defines a default target display mode for graphics_Init().
-#define HELOS_GRAPHICS_TARGET_MODE_WIDTH  1600
-#define HELOS_GRAPHICS_TARGET_MODE_HEIGHT 900
 
 typedef enum {
 	graphics_PixelFormat_RGBA_8bit,
