@@ -1,8 +1,10 @@
 
 #include "kthread.h"
 #include "kthread_switch.h"
+#include "metrics.h"
 #include "internal.h"
 
+#include "../interrupt/interrupt.h"
 #include "../runtime/stdio.h"
 #include <string.h>
 
@@ -24,11 +26,25 @@ static void printTree(tree_Node *root, int level, __tree_ConnectType type) {
 	printTree(root->right, level + 1, __tree_Right);
 }
 
+
+// Tick time of the previous Switch() call
+static uint64_t __smp_Switch_PrevTime;
+
 SYSV_ABI uintptr_t __smp_Switch() {
 	// the calling function smp_IntSwitch already CLI-ed for us
-
-
 	__smp_Thread *t = __smp_Current[0];
+
+
+	// Calculate the delta-time
+	uint64_t deltaTick = __smp_Now - __smp_Switch_PrevTime;
+	if (!t)
+		smp_metrics_Tick_Idling += deltaTick;
+	else if (t->state.cs == GDT_EXEC_RING3_SELECTOR)
+		smp_metrics_Tick_Userspace += deltaTick;
+	else
+		smp_metrics_Tick_Kernel += deltaTick;
+	__smp_Switch_PrevTime = __smp_Now;
+
 
 	uint64_t priority = UINT64_MAX;
 	if (t)
