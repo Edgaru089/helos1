@@ -15,7 +15,7 @@ export CXX  = echo "  CXX   $^" && x86_64-w64-mingw32-g++
 export LD   = echo "  LD    $@" && x86_64-w64-mingw32-gcc
 export FASM = echo "  FASM  $^" && fasm >/dev/null
 
-export INCLUDEFLAGS = -I/usr/include/efi -I/usr/include/efi/x86_64
+export INCLUDEFLAGS = -I/usr/include/efi -I/usr/include/efi/x86_64 -I$(SELF_DIR)/include/
 
 export CPPFLAGS =
 export CFLAGS   = $(INCLUDEFLAGS) -DHELOS $(BUILD_OPTIONS) -O2 -Wno-attributes -fPIE -ffreestanding -nostdlib -mcmodel=large -mno-red-zone -mno-sse

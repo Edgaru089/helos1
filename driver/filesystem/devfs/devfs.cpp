@@ -31,7 +31,10 @@ int DeviceFilesystem::__InsertMount(DeviceFilesystem::__DeviceFilesystem_Mount *
 }
 
 int DeviceFilesystem::MountCharacterIoctl(const char *path, void *user, IoctlCallback ioctl) {
-	return __InsertMount(new __DeviceFilesystem_Mount{runtime::String(path), ioctl, user, S_IFCHR});
+	return __InsertMount(new __DeviceFilesystem_Mount{runtime::String(path), nullptr, nullptr, ioctl, user, S_IFCHR});
+}
+int DeviceFilesystem::MountCharacter(const char *path, void *user, ReadCallback read, WriteCallback write, IoctlCallback ioctl) {
+	return __InsertMount(new __DeviceFilesystem_Mount{runtime::String(path), read, write, ioctl, user, S_IFCHR});
 }
 
 int DeviceFilesystem::MountBlock(const char *path, block::BlockDevice *block) {
@@ -64,7 +67,27 @@ uintptr_t DeviceFilesystem::Ioctl(const char *path, uintptr_t cmd, void *arg, Op
 	for (int i = 0; i < mounts.Size(); i++)
 		if (mounts[i]->path == path) {
 			INTERRUPT_RESTORE;
-			mounts[i]->ioctl(path, mounts[i]->user, cmd, arg, file);
+			return mounts[i]->ioctl(path, mounts[i]->user, cmd, arg, file);
+		}
+	INTERRUPT_RESTORE;
+	return -ENOENT;
+}
+int DeviceFilesystem::Read(const char *path, char *buffer, uint64_t count, uint64_t offset, OpenFile *file) {
+	INTERRUPT_DISABLE;
+	for (int i = 0; i < mounts.Size(); i++)
+		if (mounts[i]->path == path && mounts[i]->read) {
+			INTERRUPT_RESTORE;
+			return mounts[i]->read(path, mounts[i]->user, buffer, count, offset, file);
+		}
+	INTERRUPT_RESTORE;
+	return -ENOENT;
+}
+int DeviceFilesystem::Write(const char *path, const char *buffer, uint64_t count, uint64_t offset, OpenFile *file) {
+	INTERRUPT_DISABLE;
+	for (int i = 0; i < mounts.Size(); i++)
+		if (mounts[i]->path == path && mounts[i]->write) {
+			INTERRUPT_RESTORE;
+			return mounts[i]->write(path, mounts[i]->user, buffer, count, offset, file);
 		}
 	INTERRUPT_RESTORE;
 	return -ENOENT;

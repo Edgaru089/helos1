@@ -21,7 +21,11 @@ public:
 public:
 	// OpenFile* file might be NULL.
 	typedef uintptr_t (*IoctlCallback)(const char *path, void *user, uintptr_t cmd, void *arg, OpenFile *file);
+	typedef uintptr_t (*ReadCallback)(const char *path, void *user, char *buffer, uint64_t count, uint64_t offset, OpenFile *file);
+	typedef uintptr_t (*WriteCallback)(const char *path, void *user, const char *buffer, uint64_t count, uint64_t offset, OpenFile *file);
 
+	// Mounts a character device at the given name, with Read(), Write() and Ioctl().
+	int MountCharacter(const char *path, void *user, ReadCallback read, WriteCallback write, IoctlCallback ioctl);
 	// Mounts a character device at the given name, with only Ioctl() operations.
 	int MountCharacterIoctl(const char *path, void *user, IoctlCallback ioctl);
 
@@ -33,11 +37,15 @@ public:
 
 public:
 	virtual int       Readdir(const char *path, void *user, Readdir_Callback callback, OpenFile *file) override;
+	virtual int       Read(const char *path, char *buffer, uint64_t count, uint64_t offset, OpenFile *file) override;
+	virtual int       Write(const char *path, const char *buffer, uint64_t count, uint64_t offset, OpenFile *file) override;
 	virtual uintptr_t Ioctl(const char *path, uintptr_t cmd, void *arg, OpenFile *file) override;
 
 private:
 	struct __DeviceFilesystem_Mount {
 		runtime::String path; // begin with '/'
+		ReadCallback    read;
+		WriteCallback   write;
 		IoctlCallback   ioctl;
 		void           *user;
 		mode_t          type; // Either S_IFCHR or S_IFBLK

@@ -39,6 +39,10 @@ static inline void notify(void *data) {
 		smp_Condition_NotifyAll(input_Condition, data);
 }
 
+static inline bool flagControl() { return input_KeyPressed(input_Key_LControl) || input_KeyPressed(input_Key_RControl); }
+static inline bool flagShift() { return input_KeyPressed(input_Key_LShift) || input_KeyPressed(input_Key_RShift); }
+static inline bool flagAlt() { return input_KeyPressed(input_Key_LAlt) || input_KeyPressed(input_Key_RAlt); }
+
 void input_source_PressKey(input_Key key) {
 	__input_KeyMask[key / 64] |= (1ull << key % 64);
 	if (input_EventQueue) {
@@ -46,9 +50,9 @@ void input_source_PressKey(input_Key key) {
 			.Type = input_EventType_KeyPressed,
 			.Key  = {
 				 .Key     = key,
-				 .Control = false,
-				 .Shift   = false,
-				 .Alt     = false,
+				 .Control = flagControl(),
+				 .Shift   = flagShift(),
+				 .Alt     = flagAlt(),
             },
 		};
 		INTERRUPT_DISABLE;
@@ -64,9 +68,9 @@ void input_source_ReleaseKey(input_Key key) {
 			.Type = input_EventType_KeyReleased,
 			.Key  = {
 				 .Key     = key,
-				 .Control = false,
-				 .Shift   = false,
-				 .Alt     = false,
+				 .Control = flagControl(),
+				 .Shift   = flagShift(),
+				 .Alt     = flagAlt(),
             },
 		};
 		INTERRUPT_DISABLE;
